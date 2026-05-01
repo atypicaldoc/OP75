@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0a0f" />
+<title>Operation 75</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg: #0a0a0f;
+    --bg-elev: #14141c;
+    --bg-card: #1a1a24;
+    --bg-bubble-user: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    --bg-bubble-coach: #1a1a24;
+    --border: #26262f;
+    --border-strong: #353541;
+    --text: #f5f5f7;
+    --text-dim: #9ca3af;
+    --text-faint: #6b7280;
+    --accent: #f97316;
+    --accent-hover: #fb923c;
+    --accent-glow: rgba(249, 115, 22, 0.2);
+    --success: #10b981;
+    --danger: #ef4444;
+    --gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    --gradient-soft: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(234, 88, 12, 0.05) 100%);
+  }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    position: fixed;
+    inset: 0;
+    overscroll-behavior: none;
+  }
+  #app { height: 100dvh; width: 100vw; position: relative; }
+
+  /* LOADING */
+  .loader {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg);
+    z-index: 100;
+  }
+  .loader-spin {
+    width: 32px; height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* AUTH */
+  .auth-screen {
+    height: 100dvh; width: 100vw;
+    display: flex; flex-direction: column;
+    padding: 32px 24px;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(249, 115, 22, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 100%, rgba(234, 88, 12, 0.06) 0%, transparent 50%),
+      var(--bg);
+    overflow-y: auto;
+  }
+  .auth-hero { flex: 0 0 auto; padding: 48px 0 40px; text-align: center; }
+  .auth-mark {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 800; font-size: 14px; letter-spacing: 0.18em;
+    color: var(--accent); margin-bottom: 32px;
+  }
+  .auth-mark::before, .auth-mark::after {
+    content: ''; width: 24px; height: 1px;
+    background: var(--accent); opacity: 0.5;
+  }
+  .auth-title {
+    font-size: 44px; font-weight: 800; line-height: 1;
+    letter-spacing: -0.03em; margin-bottom: 16px;
+  }
+  .auth-title .num {
+    background: var(--gradient);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .auth-tagline {
+    font-size: 15px; color: var(--text-dim);
+    line-height: 1.5; max-width: 280px; margin: 0 auto;
+  }
+  .auth-form {
+    flex: 1 0 auto; display: flex; flex-direction: column;
+    gap: 14px; max-width: 380px; width: 100%;
+    margin: 0 auto; padding-top: 8px;
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-size: 12px; font-weight: 600; color: var(--text-dim);
+    letter-spacing: 0.04em; text-transform: uppercase; padding-left: 4px;
+  }
+  .field input {
+    width: 100%; padding: 16px 18px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; color: var(--text);
+    font-size: 16px; font-family: inherit;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .field input:focus {
+    outline: none; border-color: var(--accent); background: #1f1f2b;
+  }
+  .field input::placeholder { color: var(--text-faint); }
+  .btn-primary {
+    width: 100%; padding: 18px;
+    background: var(--gradient); border: none; border-radius: 14px;
+    color: white; font-size: 16px; font-weight: 700; font-family: inherit;
+    cursor: pointer; margin-top: 8px;
+    transition: transform 0.1s, box-shadow 0.2s;
+    box-shadow: 0 8px 24px -8px var(--accent-glow);
+  }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+  .auth-toggle {
+    text-align: center; margin-top: 24px;
+    font-size: 14px; color: var(--text-dim);
+  }
+  .auth-toggle button {
+    background: none; border: none; color: var(--accent);
+    font-weight: 600; font-family: inherit; font-size: 14px;
+    cursor: pointer; padding: 4px; margin-left: 4px;
+  }
+  .auth-error {
+    padding: 12px 16px; background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px;
+    color: #fca5a5; font-size: 14px; line-height: 1.4;
+  }
+  .auth-error:empty { display: none; }
+  .auth-success {
+    padding: 12px 16px; background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px;
+    color: #6ee7b7; font-size: 14px; line-height: 1.4;
+  }
+  .auth-success:empty { display: none; }
+  .auth-foot {
+    flex: 0 0 auto; text-align: center; padding-top: 32px;
+    font-size: 12px; color: var(--text-faint); letter-spacing: 0.05em;
+  }
+
+  /* ONBOARDING */
+  .onb {
+    height: 100dvh; width: 100vw;
+    display: flex; flex-direction: column;
+    background:
+      radial-gradient(circle at 20% 100%, rgba(249, 115, 22, 0.06) 0%, transparent 50%),
+      var(--bg);
+  }
+  .onb-top { flex: 0 0 auto; padding: 20px 24px 8px; display: flex; flex-direction: column; gap: 14px; }
+  .onb-nav { display: flex; align-items: center; justify-content: space-between; height: 28px; }
+  .onb-back {
+    background: none; border: none; padding: 4px 8px;
+    color: var(--text-dim); font-size: 14px; font-weight: 500;
+    font-family: inherit; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: color 0.15s;
+  }
+  .onb-back:hover { color: var(--text); }
+  .onb-back:disabled { opacity: 0; pointer-events: none; }
+  .onb-step { font-size: 12px; font-weight: 600; color: var(--text-faint); letter-spacing: 0.08em; }
+  .onb-step .current { color: var(--accent); }
+  .onb-progress { height: 3px; background: var(--bg-card); border-radius: 2px; overflow: hidden; }
+  .onb-progress-fill {
+    height: 100%; background: var(--gradient); border-radius: 2px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .onb-stage { flex: 1; overflow: hidden; position: relative; }
+  .onb-screen {
+    position: absolute; inset: 0;
+    padding: 32px 24px 24px;
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+    animation: slideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .onb-q-label { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 16px; }
+  .onb-q-title { font-size: 28px; font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 12px; }
+  .onb-q-hint { font-size: 15px; color: var(--text-dim); line-height: 1.5; margin-bottom: 32px; }
+  .onb-input-area { flex: 1; display: flex; flex-direction: column; gap: 12px; padding-bottom: 24px; }
+  .onb-options { display: flex; flex-direction: column; gap: 10px; }
+  .onb-option {
+    width: 100%; padding: 18px 20px;
+    background: var(--bg-card); border: 1.5px solid var(--border);
+    border-radius: 14px; color: var(--text);
+    font-size: 16px; font-weight: 500; font-family: inherit;
+    cursor: pointer; text-align: left;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .onb-option:hover { border-color: var(--border-strong); }
+  .onb-option.selected { background: var(--gradient-soft); border-color: var(--accent); }
+  .onb-option.selected::after { content: '✓'; color: var(--accent); font-weight: 700; font-size: 18px; }
+  .onb-number-row { display: flex; gap: 12px; }
+  .onb-number-row > div { flex: 1; }
+  .onb-num-label {
+    font-size: 12px; font-weight: 600; color: var(--text-dim);
+    letter-spacing: 0.04em; text-transform: uppercase; padding-left: 4px;
+    margin-bottom: 6px; display: block;
+  }
+  .onb-num-input {
+    width: 100%; padding: 18px 20px;
+    background: var(--bg-card); border: 1.5px solid var(--border);
+    border-radius: 14px; color: var(--text);
+    font-size: 22px; font-weight: 600; font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .onb-num-input:focus { outline: none; border-color: var(--accent); }
+  .onb-num-suffix { position: relative; }
+  .onb-num-suffix::after {
+    content: attr(data-suffix);
+    position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+    color: var(--text-faint); font-size: 14px; font-weight: 500; pointer-events: none;
+  }
+  .onb-textarea {
+    width: 100%; min-height: 140px; padding: 18px 20px;
+    background: var(--bg-card); border: 1.5px solid var(--border);
+    border-radius: 14px; color: var(--text);
+    font-size: 16px; font-family: inherit; line-height: 1.5;
+    resize: none; transition: border-color 0.15s;
+  }
+  .onb-textarea:focus { outline: none; border-color: var(--accent); }
+  .onb-textarea::placeholder { color: var(--text-faint); line-height: 1.5; }
+  .onb-bottom {
+    flex: 0 0 auto; padding: 12px 24px 28px;
+    background: linear-gradient(to bottom, transparent, var(--bg) 30%);
+  }
+  .onb-cta {
+    width: 100%; padding: 18px;
+    background: var(--gradient); border: none; border-radius: 14px;
+    color: white; font-size: 16px; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: transform 0.1s, opacity 0.15s;
+    box-shadow: 0 8px 24px -8px var(--accent-glow);
+  }
+  .onb-cta:active { transform: scale(0.98); }
+  .onb-cta:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+  .onb-welcome {
+    height: 100%; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 24px;
+  }
+  .onb-welcome-mark { font-size: 13px; font-weight: 800; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 24px; }
+  .onb-welcome-title { font-size: 36px; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 16px; max-width: 320px; }
+  .onb-welcome-text { font-size: 16px; color: var(--text-dim); line-height: 1.5; max-width: 320px; margin-bottom: 40px; }
+  .onb-welcome-meta { font-size: 13px; color: var(--text-faint); letter-spacing: 0.05em; margin-top: 32px; }
+  .onb-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .onb-chip {
+    padding: 12px 18px;
+    background: var(--bg-card); border: 1.5px solid var(--border);
+    border-radius: 999px; color: var(--text);
+    font-size: 14px; font-weight: 500; font-family: inherit;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .onb-chip:hover { border-color: var(--border-strong); }
+  .onb-chip.selected { background: var(--accent); border-color: var(--accent); color: white; font-weight: 600; }
+  .onb-finalize {
+    height: 100%; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 24px; gap: 24px;
+  }
+  .onb-finalize-spin {
+    width: 48px; height: 48px;
+    border: 3px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  .onb-finalize-text { font-size: 18px; font-weight: 600; color: var(--text); max-width: 280px; line-height: 1.4; }
+  .onb-finalize-sub {
+    font-size: 14px; color: var(--text-dim); max-width: 280px;
+    line-height: 1.5; min-height: 42px; transition: opacity 0.2s;
+  }
+
+  /* CHAT */
+  .chat-screen {
+    height: 100dvh; width: 100vw;
+    display: flex; flex-direction: column;
+    background: var(--bg);
+  }
+  .chat-header {
+    flex: 0 0 auto;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-elev);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+  .chat-header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .chat-avatar {
+    width: 38px; height: 38px;
+    background: var(--gradient);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; color: white; font-size: 14px;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+  .chat-title-block { min-width: 0; }
+  .chat-title {
+    font-size: 15px; font-weight: 700; letter-spacing: -0.01em;
+    line-height: 1.2;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .chat-status {
+    font-size: 11px; color: var(--success);
+    line-height: 1.2; margin-top: 2px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .chat-status::before {
+    content: ''; display: inline-block;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--success);
+  }
+  .chat-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .icon-btn {
+    width: 36px; height: 36px;
+    background: transparent; border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-dim); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+  .icon-btn:hover { background: var(--bg-card); color: var(--text); }
+  .icon-btn:active { transform: scale(0.95); }
+  .icon-btn svg { width: 18px; height: 18px; }
+
+  .chat-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 16px 12px;
+    display: flex; flex-direction: column; gap: 14px;
+    scroll-behavior: smooth;
+  }
+  .chat-day-divider {
+    text-align: center;
+    font-size: 11px; font-weight: 600;
+    color: var(--text-faint);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 0 4px;
+  }
+  .msg {
+    max-width: 82%;
+    display: flex; flex-direction: column; gap: 4px;
+    animation: msgIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .msg-user { align-self: flex-end; align-items: flex-end; }
+  .msg-coach { align-self: flex-start; align-items: flex-start; }
+  .bubble {
+    padding: 11px 16px;
+    border-radius: 18px;
+    font-size: 15px;
+    line-height: 1.45;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  }
+  .msg-user .bubble {
+    background: var(--bg-bubble-user);
+    color: white;
+    border-bottom-right-radius: 6px;
+    box-shadow: 0 4px 14px -6px var(--accent-glow);
+  }
+  .msg-coach .bubble {
+    background: var(--bg-bubble-coach);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 6px;
+  }
+  .msg-time {
+    font-size: 10px;
+    color: var(--text-faint);
+    padding: 0 8px;
+    letter-spacing: 0.03em;
+  }
+  .typing-bubble {
+    background: var(--bg-bubble-coach);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    border-bottom-left-radius: 6px;
+    padding: 14px 18px;
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .typing-dot {
+    width: 7px; height: 7px;
+    background: var(--text-faint);
+    border-radius: 50%;
+    animation: typing 1.2s infinite ease-in-out;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes typing {
+    0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-4px); }
+  }
+
+  .chat-empty {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 40px 24px;
+    gap: 16px;
+  }
+  .chat-empty-icon {
+    width: 64px; height: 64px;
+    border-radius: 18px;
+    background: var(--gradient-soft);
+    border: 1px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+  .chat-empty-title { font-size: 20px; font-weight: 700; }
+  .chat-empty-text {
+    font-size: 14px; color: var(--text-dim);
+    line-height: 1.5; max-width: 280px;
+  }
+  .chat-empty-prompts {
+    margin-top: 12px;
+    display: flex; flex-direction: column; gap: 8px;
+    width: 100%; max-width: 320px;
+  }
+  .empty-prompt {
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .empty-prompt:hover { border-color: var(--accent); }
+
+  .chat-input-area {
+    flex: 0 0 auto;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+    background: var(--bg-elev);
+  }
+  .chat-input-row {
+    display: flex; gap: 8px; align-items: flex-end;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 24px;
+    padding: 4px 4px 4px 16px;
+    transition: border-color 0.15s;
+  }
+  .chat-input-row:focus-within { border-color: var(--accent); }
+  .chat-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 16px;
+    font-family: inherit;
+    line-height: 1.4;
+    padding: 10px 0;
+    resize: none;
+    max-height: 140px;
+    min-height: 24px;
+  }
+  .chat-input:focus { outline: none; }
+  .chat-input::placeholder { color: var(--text-faint); }
+  .send-btn {
+    width: 40px; height: 40px;
+    background: var(--gradient);
+    border: none; border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .send-btn:disabled {
+    background: var(--bg);
+    color: var(--text-faint);
+    cursor: not-allowed;
+  }
+  .send-btn:active:not(:disabled) { transform: scale(0.92); }
+  .send-btn svg { width: 18px; height: 18px; }
+
+  .chat-error-banner {
+    margin: 8px 16px;
+    padding: 10px 14px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 10px;
+    color: #fca5a5;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  /* MENU MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: flex; align-items: flex-end; justify-content: center;
+    animation: fadeIn 0.2s;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal-sheet {
+    width: 100%;
+    max-width: 480px;
+    background: var(--bg-elev);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    border-top: 1px solid var(--border);
+    padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+    animation: slideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-handle {
+    width: 36px; height: 4px;
+    background: var(--border-strong); border-radius: 2px;
+    margin: -8px auto 18px;
+  }
+  .modal-title {
+    font-size: 18px; font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .modal-sub {
+    font-size: 13px; color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+  .modal-row {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 15px;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 10px;
+    transition: border-color 0.15s;
+  }
+  .modal-row:hover { border-color: var(--border-strong); }
+  .modal-row-danger { color: #fca5a5; border-color: rgba(239, 68, 68, 0.3); }
+  .modal-row svg { width: 18px; height: 18px; opacity: 0.7; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="loader" id="initial-loader">
+    <div class="loader-spin"></div>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+// ============================================================
+// CONFIG
+// ============================================================
+const SUPABASE_URL = 'https://zmznsvgdwmptqakrfxtc.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inptem5zdmdkd21wdHFha3JmeHRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjA3NDQsImV4cCI6MjA5MzA5Njc0NH0.Iq2-krvKn01P9dFcYrx7SoaAbUTA8-CqnwJiKe3mp0M';
+const CHAT_FN = '/.netlify/functions/chat';
+const PROMPT_FN = '/.netlify/functions/generate-prompt';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const state = {
+  user: null,
+  profile: null,
+  authMode: 'signup',
+  messages: [],
+  sending: false,
+};
+
+const app = document.getElementById('app');
+
+// ============================================================
+// ROUTER
+// ============================================================
+async function route() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    state.user = null;
+    state.profile = null;
+    renderAuth();
+    return;
+  }
+  state.user = session.user;
+  const { data: profile } = await supabase
+    .from('profiles').select('*').eq('id', session.user.id).single();
+  state.profile = profile;
+  if (!profile?.onboarded) renderOnboarding();
+  else renderChat();
+}
+
+// ============================================================
+// AUTH
+// ============================================================
+function renderAuth() {
+  const isSignup = state.authMode === 'signup';
+  app.innerHTML = `
+    <div class="auth-screen">
+      <div class="auth-hero">
+        <div class="auth-mark">OPERATION</div>
+        <div class="auth-title">Operation <span class="num">75</span></div>
+        <p class="auth-tagline">${isSignup ? 'Your personal coach. Built for the body you want back.' : 'Welcome back. Let\'s keep going.'}</p>
+      </div>
+      <form class="auth-form" id="auth-form" autocomplete="on">
+        ${isSignup ? `
+          <div class="field">
+            <label for="name">Your name</label>
+            <input type="text" id="name" name="name" placeholder="What should the coach call you?" required autocomplete="name" />
+          </div>` : ''}
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="${isSignup ? 'At least 6 characters' : 'Your password'}" required minlength="6" autocomplete="${isSignup ? 'new-password' : 'current-password'}" />
+        </div>
+        <div class="auth-error" id="auth-error"></div>
+        <div class="auth-success" id="auth-success"></div>
+        <button type="submit" class="btn-primary" id="auth-submit">${isSignup ? 'Start Operation 75' : 'Log in'}</button>
+        <div class="auth-toggle">
+          ${isSignup ? 'Already have an account?' : 'New here?'}
+          <button type="button" id="toggle-mode">${isSignup ? 'Log in' : 'Create account'}</button>
+        </div>
+      </form>
+      <div class="auth-foot">82 KG → 75 KG · LEAN · ATHLETIC · SHARP</div>
+    </div>`;
+  document.getElementById('toggle-mode').onclick = () => {
+    state.authMode = isSignup ? 'login' : 'signup';
+    renderAuth();
+  };
+  document.getElementById('auth-form').onsubmit = handleAuthSubmit;
+}
+
+async function handleAuthSubmit(e) {
+  e.preventDefault();
+  const isSignup = state.authMode === 'signup';
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const name = isSignup ? document.getElementById('name').value.trim() : null;
+  const errorEl = document.getElementById('auth-error');
+  const successEl = document.getElementById('auth-success');
+  const submitBtn = document.getElementById('auth-submit');
+  errorEl.textContent = ''; successEl.textContent = '';
+  submitBtn.disabled = true;
+  submitBtn.textContent = isSignup ? 'Creating account...' : 'Logging in...';
+  try {
+    if (isSignup) {
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) throw error;
+      if (data.user) await supabase.from('profiles').update({ name }).eq('id', data.user.id);
+      if (data.session) await route();
+      else {
+        successEl.textContent = 'Account created. Check your email to confirm, then log in.';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Start Operation 75';
+      }
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      await route();
+    }
+  } catch (err) {
+    errorEl.textContent = friendlyError(err.message);
+    submitBtn.disabled = false;
+    submitBtn.textContent = isSignup ? 'Start Operation 75' : 'Log in';
+  }
+}
+
+function friendlyError(msg) {
+  if (!msg) return 'Something went wrong. Try again.';
+  if (msg.includes('already registered')) return 'An account with this email already exists. Try logging in.';
+  if (msg.includes('Invalid login')) return 'Wrong email or password.';
+  if (msg.includes('Password should be')) return 'Password must be at least 6 characters.';
+  if (msg.includes('Email not confirmed')) return 'Please confirm your email first.';
+  return msg;
+}
+
+// ============================================================
+// ONBOARDING
+// ============================================================
+const ONBOARDING_QUESTIONS = [
+  { kind: 'welcome', title: 'Let\'s build your coach.', text: 'Nine quick questions. Three minutes. After this, your coach knows you personally — your schedule, your body, what trips you up. Every conversation starts from there.', cta: 'Start' },
+  { kind: 'options', field: 'age_band', label: 'Question 1 of 9', title: 'How old are you?', hint: 'Affects how we think about recovery and intensity.', options: [
+    { value: 'under_25', label: 'Under 25' },
+    { value: '25_34', label: '25 — 34' },
+    { value: '35_44', label: '35 — 44' },
+    { value: '45_54', label: '45 — 54' },
+    { value: '55_plus', label: '55 and above' },
+  ]},
+  { kind: 'options', field: 'sex', label: 'Question 2 of 9', title: 'Sex?', hint: 'Used for protein math and body composition expectations.', options: [
+    { value: 'male', label: 'Male' },
+    { value: 'female', label: 'Female' },
+    { value: 'prefer_not', label: 'Prefer not to say' },
+  ]},
+  { kind: 'numbers', label: 'Question 3 of 9', title: 'Your height?', hint: 'In centimeters. Roughly is fine.', fields: [
+    { field: 'height_cm', label: 'Height', suffix: 'cm', min: 120, max: 230, placeholder: '170' },
+  ]},
+  { kind: 'numbers', label: 'Question 4 of 9', title: 'Where you are now and where you want to be.', hint: 'Today\'s weight and your real target.', fields: [
+    { field: 'starting_weight_kg', label: 'Today', suffix: 'kg', min: 35, max: 200, placeholder: '80' },
+    { field: 'target_weight_kg', label: 'Target', suffix: 'kg', min: 35, max: 200, placeholder: '75' },
+  ]},
+  { kind: 'text', field: 'daily_schedule', label: 'Question 5 of 9', title: 'What does your day actually look like?', hint: 'Work, hours, when you\'re free. Keep it real, not aspirational.', placeholder: 'e.g. Run a clinic. Out of the house 9am to 9pm. Free between 8-10am in the morning and after 9pm at night. Eat dinner late.', minLength: 30 },
+  { kind: 'chips', field: 'equipment', label: 'Question 6 of 9', title: 'What can you train with?', hint: 'Tap everything you have access to.', options: ['Cable machine', 'Dumbbells', 'Barbell', 'Kettlebells', 'Resistance bands', 'Pull-up bar', 'Bodyweight only', 'Full gym membership'], minSelected: 1 },
+  { kind: 'options', field: 'diet_type', label: 'Question 7 of 9', title: 'How do you eat?', hint: 'Drives every nutrition recommendation.', options: [
+    { value: 'vegetarian', label: 'Vegetarian' },
+    { value: 'vegan', label: 'Vegan' },
+    { value: 'eggetarian', label: 'Vegetarian + eggs' },
+    { value: 'non_veg', label: 'Non-vegetarian' },
+    { value: 'jain', label: 'Jain' },
+    { value: 'other', label: 'Something else' },
+  ]},
+  { kind: 'text', field: 'starting_point', label: 'Question 8 of 9', title: 'Where are you starting from?', hint: 'Your fitness history. Have you done this before? What are you working with right now?', placeholder: 'e.g. Was lean 3 years ago, fell off after starting the business. Can do 5 push-ups. Zero pull-ups. Have tried and quit twice. Want to come back.', minLength: 40 },
+  { kind: 'text', field: 'main_obstacle', label: 'Question 9 of 9', title: 'What\'s the one thing that always trips you up?', hint: 'Be honest. The coach can\'t help with what it doesn\'t know.', placeholder: 'e.g. Late dinner. I get home at 9pm and eat heavy. I know it\'s the problem but the day eats me.', minLength: 20 },
+  { kind: 'finalize' },
+];
+
+const onbState = { step: 0, answers: {} };
+
+function renderOnboarding() {
+  app.innerHTML = `
+    <div class="onb">
+      <div class="onb-top">
+        <div class="onb-nav">
+          <button class="onb-back" id="onb-back">← Back</button>
+          <div class="onb-step" id="onb-step-text"></div>
+        </div>
+        <div class="onb-progress"><div class="onb-progress-fill" id="onb-progress"></div></div>
+      </div>
+      <div class="onb-stage" id="onb-stage"></div>
+      <div class="onb-bottom" id="onb-bottom"></div>
+    </div>`;
+  document.getElementById('onb-back').onclick = onbBack;
+  renderOnbStep();
+}
+
+function renderOnbStep() {
+  const q = ONBOARDING_QUESTIONS[onbState.step];
+  const total = ONBOARDING_QUESTIONS.length;
+  const progressPct = (onbState.step / (total - 1)) * 100;
+  document.getElementById('onb-progress').style.width = `${progressPct}%`;
+  document.getElementById('onb-step-text').innerHTML =
+    onbState.step === 0 || q.kind === 'finalize' ? '' :
+    `<span class="current">${onbState.step}</span>  /  ${total - 2}`;
+  document.getElementById('onb-back').disabled = onbState.step === 0 || q.kind === 'finalize';
+  const stage = document.getElementById('onb-stage');
+  const bottom = document.getElementById('onb-bottom');
+
+  if (q.kind === 'welcome') {
+    stage.innerHTML = `<div class="onb-screen"><div class="onb-welcome">
+      <div class="onb-welcome-mark">OPERATION 75</div>
+      <h1 class="onb-welcome-title">${q.title}</h1>
+      <p class="onb-welcome-text">${q.text}</p>
+      <div class="onb-welcome-meta">9 QUESTIONS · ~3 MINUTES</div>
+    </div></div>`;
+    bottom.innerHTML = `<button class="onb-cta" id="onb-next">${q.cta}</button>`;
+    document.getElementById('onb-next').onclick = onbNext;
+    return;
+  }
+  if (q.kind === 'finalize') {
+    stage.innerHTML = `<div class="onb-screen"><div class="onb-finalize">
+      <div class="onb-finalize-spin"></div>
+      <div class="onb-finalize-text" id="onb-final-text">Building your coach...</div>
+      <div class="onb-finalize-sub" id="onb-final-sub">Reading your answers</div>
+    </div></div>`;
+    bottom.innerHTML = '';
+    finalizeOnboarding();
+    return;
+  }
+  if (q.kind === 'options') {
+    const selected = onbState.answers[q.field];
+    stage.innerHTML = `<div class="onb-screen">
+      <div class="onb-q-label">${q.label}</div>
+      <h1 class="onb-q-title">${q.title}</h1>
+      <p class="onb-q-hint">${q.hint}</p>
+      <div class="onb-input-area"><div class="onb-options" id="opts">
+        ${q.options.map(opt => `<button class="onb-option ${selected === opt.value ? 'selected' : ''}" data-value="${opt.value}"><span>${opt.label}</span></button>`).join('')}
+      </div></div></div>`;
+    bottom.innerHTML = `<button class="onb-cta" id="onb-next" ${selected ? '' : 'disabled'}>Continue</button>`;
+    document.querySelectorAll('#opts .onb-option').forEach(btn => {
+      btn.onclick = () => {
+        onbState.answers[q.field] = btn.dataset.value;
+        document.querySelectorAll('#opts .onb-option').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        document.getElementById('onb-next').disabled = false;
+        setTimeout(() => onbNext(), 250);
+      };
+    });
+    document.getElementById('onb-next').onclick = onbNext;
+    return;
+  }
+  if (q.kind === 'numbers') {
+    stage.innerHTML = `<div class="onb-screen">
+      <div class="onb-q-label">${q.label}</div>
+      <h1 class="onb-q-title">${q.title}</h1>
+      <p class="onb-q-hint">${q.hint}</p>
+      <div class="onb-input-area"><div class="onb-number-row">
+        ${q.fields.map(f => `
+          <div>
+            <label class="onb-num-label">${f.label}</label>
+            <div class="onb-num-suffix" data-suffix="${f.suffix}">
+              <input type="number" class="onb-num-input" id="num-${f.field}" inputmode="decimal" min="${f.min}" max="${f.max}" placeholder="${f.placeholder}" value="${onbState.answers[f.field] || ''}" />
+            </div>
+          </div>`).join('')}
+      </div></div></div>`;
+    bottom.innerHTML = `<button class="onb-cta" id="onb-next">Continue</button>`;
+    const validateNumbers = () => {
+      const allValid = q.fields.every(f => {
+        const v = parseFloat(document.getElementById(`num-${f.field}`).value);
+        return !isNaN(v) && v >= f.min && v <= f.max;
+      });
+      document.getElementById('onb-next').disabled = !allValid;
+    };
+    q.fields.forEach(f => {
+      const input = document.getElementById(`num-${f.field}`);
+      input.addEventListener('input', () => {
+        const v = parseFloat(input.value);
+        if (!isNaN(v)) onbState.answers[f.field] = v;
+        validateNumbers();
+      });
+    });
+    validateNumbers();
+    setTimeout(() => document.getElementById(`num-${q.fields[0].field}`)?.focus(), 100);
+    document.getElementById('onb-next').onclick = onbNext;
+    return;
+  }
+  if (q.kind === 'text') {
+    const current = onbState.answers[q.field] || '';
+    stage.innerHTML = `<div class="onb-screen">
+      <div class="onb-q-label">${q.label}</div>
+      <h1 class="onb-q-title">${q.title}</h1>
+      <p class="onb-q-hint">${q.hint}</p>
+      <div class="onb-input-area">
+        <textarea class="onb-textarea" id="txt-input" placeholder="${q.placeholder}">${current}</textarea>
+      </div></div>`;
+    bottom.innerHTML = `<button class="onb-cta" id="onb-next">Continue</button>`;
+    const txt = document.getElementById('txt-input');
+    const validate = () => {
+      const v = txt.value.trim();
+      onbState.answers[q.field] = v;
+      document.getElementById('onb-next').disabled = v.length < (q.minLength || 1);
+    };
+    txt.addEventListener('input', validate);
+    validate();
+    setTimeout(() => txt.focus(), 100);
+    document.getElementById('onb-next').onclick = onbNext;
+    return;
+  }
+  if (q.kind === 'chips') {
+    const selected = onbState.answers[q.field] || [];
+    stage.innerHTML = `<div class="onb-screen">
+      <div class="onb-q-label">${q.label}</div>
+      <h1 class="onb-q-title">${q.title}</h1>
+      <p class="onb-q-hint">${q.hint}</p>
+      <div class="onb-input-area"><div class="onb-chips" id="chips">
+        ${q.options.map(opt => `<button class="onb-chip ${selected.includes(opt) ? 'selected' : ''}" data-value="${opt}">${opt}</button>`).join('')}
+      </div></div></div>`;
+    bottom.innerHTML = `<button class="onb-cta" id="onb-next" ${selected.length >= (q.minSelected || 1) ? '' : 'disabled'}>Continue</button>`;
+    document.querySelectorAll('#chips .onb-chip').forEach(btn => {
+      btn.onclick = () => {
+        const value = btn.dataset.value;
+        const current = onbState.answers[q.field] || [];
+        if (current.includes(value)) {
+          onbState.answers[q.field] = current.filter(v => v !== value);
+          btn.classList.remove('selected');
+        } else {
+          onbState.answers[q.field] = [...current, value];
+          btn.classList.add('selected');
+        }
+        document.getElementById('onb-next').disabled = onbState.answers[q.field].length < (q.minSelected || 1);
+      };
+    });
+    document.getElementById('onb-next').onclick = onbNext;
+    return;
+  }
+}
+
+function onbNext() {
+  if (onbState.step < ONBOARDING_QUESTIONS.length - 1) {
+    onbState.step++;
+    renderOnbStep();
+  }
+}
+function onbBack() {
+  if (onbState.step > 0) {
+    onbState.step--;
+    renderOnbStep();
+  }
+}
+
+function ageBandToInt(band) {
+  const map = { under_25: 23, '25_34': 30, '35_44': 40, '45_54': 50, '55_plus': 60 };
+  return map[band] || null;
+}
+
+function templateSystemPrompt(answers, name) {
+  // Used as fallback only if AI generation fails.
+  const equipment = (answers.equipment || []).join(', ');
+  return `You are ${name}'s personal fitness coach inside Operation 75. Stay strictly within fitness and health. If asked anything outside that, redirect warmly back to the goal.
+
+WHO ${name.toUpperCase()} IS:
+${name}, ${answers.height_cm}cm, ${answers.starting_weight_kg}kg, target ${answers.target_weight_kg}kg. ${answers.diet_type} diet. Equipment: ${equipment}.
+
+THEIR REALITY: "${answers.daily_schedule}"
+STARTING FROM: "${answers.starting_point}"
+WHAT TRIPS THEM UP: "${answers.main_obstacle}"
+
+Tone: warm, direct, like a friend who is also a serious coach. Reference their schedule. Never lecture. When they miss, ask one question — why — then solve it. End every response with one specific target.
+
+After every response, append [CHECKIN:{"workout_done":true,...}] on a new line. Only fields you actually know. App strips it before display.`;
+}
+
+async function finalizeOnboarding() {
+  const subEl = document.getElementById('onb-final-sub');
+  const textEl = document.getElementById('onb-final-text');
+  const messages = ['Reading your answers', 'Building your coaching profile', 'Calibrating tone and approach', 'Almost ready'];
+  let i = 0;
+  const interval = setInterval(() => {
+    i++;
+    if (i < messages.length) {
+      subEl.style.opacity = '0';
+      setTimeout(() => { subEl.textContent = messages[i]; subEl.style.opacity = '1'; }, 200);
+    }
+  }, 700);
+
+  try {
+    const name = state.profile?.name || state.user.email.split('@')[0];
+
+    // Try AI-generated system prompt; fall back to template on any error
+    let systemPrompt;
+    try {
+      const res = await fetch(PROMPT_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, answers: onbState.answers }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Prompt generation failed');
+      systemPrompt = data.systemPrompt;
+      if (!systemPrompt || systemPrompt.length < 200) throw new Error('Prompt too short');
+    } catch (promptErr) {
+      console.warn('AI prompt generation failed, using template:', promptErr);
+      systemPrompt = templateSystemPrompt(onbState.answers, name);
+    }
+
+    const updatePayload = {
+      age: ageBandToInt(onbState.answers.age_band),
+      sex: onbState.answers.sex,
+      height_cm: onbState.answers.height_cm,
+      starting_weight_kg: onbState.answers.starting_weight_kg,
+      target_weight_kg: onbState.answers.target_weight_kg,
+      daily_schedule: onbState.answers.daily_schedule,
+      equipment: (onbState.answers.equipment || []).join(', '),
+      diet_type: onbState.answers.diet_type,
+      current_fitness: onbState.answers.starting_point,
+      obstacles: onbState.answers.main_obstacle,
+      system_prompt: systemPrompt,
+      onboarded: true,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { error } = await supabase.from('profiles').update(updatePayload).eq('id', state.user.id);
+    if (error) throw error;
+
+    await new Promise(r => setTimeout(r, Math.max(0, 3000 - i * 700)));
+    clearInterval(interval);
+    textEl.textContent = 'Your coach is ready.';
+    subEl.textContent = '';
+    await new Promise(r => setTimeout(r, 800));
+    await route();
+  } catch (err) {
+    clearInterval(interval);
+    textEl.textContent = 'Something went wrong.';
+    subEl.innerHTML = `<div style="color: #fca5a5; margin-top: 8px; font-size: 13px;">${err.message}</div>
+      <button class="onb-cta" style="margin-top: 16px; max-width: 200px;" onclick="location.reload()">Try again</button>`;
+  }
+}
+
+// ============================================================
+// CHAT
+// ============================================================
+function getInitials(name) {
+  if (!name) return 'C';
+  const parts = name.trim().split(/\s+/);
+  return (parts[0][0] + (parts[1]?.[0] || '')).toUpperCase();
+}
+
+function fmtTime(ts) {
+  const d = new Date(ts);
+  return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+
+function fmtDay(ts) {
+  const d = new Date(ts);
+  const today = new Date();
+  const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
+  if (d.toDateString() === today.toDateString()) return 'TODAY';
+  if (d.toDateString() === yesterday.toDateString()) return 'YESTERDAY';
+  return d.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' }).toUpperCase();
+}
+
+function stripCheckin(text) {
+  // Remove [CHECKIN:{...}] blocks from coach response before display
+  return text.replace(/\[CHECKIN:\s*\{[\s\S]*?\}\]/g, '').trim();
+}
+
+function extractCheckin(text) {
+  const match = text.match(/\[CHECKIN:\s*(\{[\s\S]*?\})\]/);
+  if (!match) return null;
+  try {
+    return JSON.parse(match[1]);
+  } catch (e) {
+    console.warn('Checkin JSON parse failed:', match[1]);
+    return null;
+  }
+}
+
+async function loadMessages() {
+  const { data, error } = await supabase
+    .from('messages')
+    .select('*')
+    .eq('user_id', state.user.id)
+    .order('created_at', { ascending: true })
+    .limit(200);
+  if (error) {
+    console.error('Load messages error:', error);
+    return [];
+  }
+  return data || [];
+}
+
+async function saveCheckin(checkin) {
+  if (!checkin || Object.keys(checkin).length === 0) return;
+  const payload = {
+    user_id: state.user.id,
+    checkin_date: new Date().toISOString().slice(0, 10),
+    workout_done: checkin.workout_done ?? null,
+    workout_day: checkin.workout_day ?? null,
+    workout_duration_min: checkin.workout_duration_min ?? null,
+    dinner_time: checkin.dinner_time ?? null,
+    walk_done: checkin.walk_done ?? null,
+    weight_kg: checkin.weight_kg ?? null,
+    energy_level: checkin.energy_level ?? null,
+    pushups_done: checkin.pushups_done ?? null,
+    notes: checkin.notes ?? null,
+  };
+  const { error } = await supabase.from('checkins').insert(payload);
+  if (error) console.error('Save checkin error:', error);
+}
+
+async function renderChat() {
+  const name = state.profile?.name || state.user.email.split('@')[0];
+  state.messages = await loadMessages();
+
+  app.innerHTML = `
+    <div class="chat-screen">
+      <div class="chat-header">
+        <div class="chat-header-left">
+          <div class="chat-avatar">75</div>
+          <div class="chat-title-block">
+            <div class="chat-title">Your Coach</div>
+            <div class="chat-status">Online</div>
+          </div>
+        </div>
+        <div class="chat-actions">
+          <button class="icon-btn" id="menu-btn" aria-label="Menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="chat-body" id="chat-body"></div>
+      <div class="chat-input-area">
+        <div class="chat-input-row">
+          <textarea class="chat-input" id="chat-input" placeholder="Tell your coach about today..." rows="1"></textarea>
+          <button class="send-btn" id="send-btn" disabled aria-label="Send">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`;
+
+  renderMessageList();
+  setupChatInput();
+  document.getElementById('menu-btn').onclick = openMenu;
+
+  // If brand new user with no messages, send the first coach greeting
+  if (state.messages.length === 0) {
+    await sendInitialGreeting();
+  }
+}
+
+function renderMessageList() {
+  const body = document.getElementById('chat-body');
+  if (!state.messages.length) {
+    body.innerHTML = `
+      <div class="chat-empty">
+        <div class="chat-empty-icon">👋</div>
+        <div class="chat-empty-title">Say hi to start</div>
+        <div class="chat-empty-text">Your coach knows you already. Tell them how today went, ask about your plan, or just check in.</div>
+        <div class="chat-empty-prompts">
+          <button class="empty-prompt" data-prompt="Hey, let's do this. Where do we start?">Hey, let's do this. Where do we start?</button>
+          <button class="empty-prompt" data-prompt="What's my workout for today?">What's my workout for today?</button>
+          <button class="empty-prompt" data-prompt="Quick check-in on today">Quick check-in on today</button>
+        </div>
+      </div>`;
+    document.querySelectorAll('.empty-prompt').forEach(btn => {
+      btn.onclick = () => {
+        document.getElementById('chat-input').value = btn.dataset.prompt;
+        document.getElementById('chat-input').dispatchEvent(new Event('input'));
+        sendMessage();
+      };
+    });
+    return;
+  }
+
+  let lastDay = '';
+  let html = '';
+  for (const m of state.messages) {
+    const day = fmtDay(m.created_at);
+    if (day !== lastDay) {
+      html += `<div class="chat-day-divider">${day}</div>`;
+      lastDay = day;
+    }
+    const isUser = m.role === 'user';
+    const content = isUser ? m.content : stripCheckin(m.content);
+    if (!content) continue;
+    html += `
+      <div class="msg ${isUser ? 'msg-user' : 'msg-coach'}">
+        <div class="bubble">${escapeHtml(content)}</div>
+        <div class="msg-time">${fmtTime(m.created_at)}</div>
+      </div>`;
+  }
+  body.innerHTML = html;
+  scrollToBottom();
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function scrollToBottom() {
+  const body = document.getElementById('chat-body');
+  if (body) body.scrollTop = body.scrollHeight;
+}
+
+function setupChatInput() {
+  const input = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('send-btn');
+  const autoResize = () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 140) + 'px';
+  };
+  input.addEventListener('input', () => {
+    sendBtn.disabled = !input.value.trim() || state.sending;
+    autoResize();
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (!sendBtn.disabled) sendMessage();
+    }
+  });
+  sendBtn.onclick = sendMessage;
+}
+
+function appendMessageToView(msg) {
+  const body = document.getElementById('chat-body');
+  // If empty state was showing, clear it
+  if (body.querySelector('.chat-empty')) body.innerHTML = '';
+
+  // Add day divider if new day
+  const lastDivider = [...body.querySelectorAll('.chat-day-divider')].pop();
+  const day = fmtDay(msg.created_at);
+  if (!lastDivider || lastDivider.textContent !== day) {
+    const div = document.createElement('div');
+    div.className = 'chat-day-divider';
+    div.textContent = day;
+    body.appendChild(div);
+  }
+
+  const isUser = msg.role === 'user';
+  const content = isUser ? msg.content : stripCheckin(msg.content);
+  if (!content) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = `msg ${isUser ? 'msg-user' : 'msg-coach'}`;
+  wrap.innerHTML = `
+    <div class="bubble">${escapeHtml(content)}</div>
+    <div class="msg-time">${fmtTime(msg.created_at)}</div>`;
+  body.appendChild(wrap);
+  scrollToBottom();
+}
+
+function showTypingIndicator() {
+  const body = document.getElementById('chat-body');
+  if (body.querySelector('.chat-empty')) body.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'msg msg-coach';
+  wrap.id = 'typing-indicator';
+  wrap.innerHTML = `<div class="typing-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+  body.appendChild(wrap);
+  scrollToBottom();
+}
+
+function hideTypingIndicator() {
+  document.getElementById('typing-indicator')?.remove();
+}
+
+function showChatError(msg) {
+  hideTypingIndicator();
+  const body = document.getElementById('chat-body');
+  const banner = document.createElement('div');
+  banner.className = 'chat-error-banner';
+  banner.textContent = msg;
+  body.appendChild(banner);
+  scrollToBottom();
+  setTimeout(() => banner.remove(), 6000);
+}
+
+async function sendMessage() {
+  if (state.sending) return;
+  const input = document.getElementById('chat-input');
+  const content = input.value.trim();
+  if (!content) return;
+
+  state.sending = true;
+  document.getElementById('send-btn').disabled = true;
+  input.value = '';
+  input.style.height = 'auto';
+
+  // Optimistic user message
+  const userMsg = {
+    user_id: state.user.id,
+    role: 'user',
+    content,
+    created_at: new Date().toISOString(),
+  };
+  state.messages.push(userMsg);
+  appendMessageToView(userMsg);
+
+  // Persist user message
+  supabase.from('messages').insert({
+    user_id: state.user.id, role: 'user', content,
+  }).then(({ error }) => {
+    if (error) console.error('Persist user msg error:', error);
+  });
+
+  showTypingIndicator();
+
+  try {
+    // Build messages payload for Anthropic — strip checkin tags from history
+    const apiMessages = state.messages.slice(-30).map(m => ({
+      role: m.role,
+      content: m.role === 'assistant' ? stripCheckin(m.content) : m.content,
+    }));
+
+    const res = await fetch(CHAT_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemPrompt: state.profile.system_prompt,
+        messages: apiMessages,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Coach is unreachable');
+
+    const fullText = data.text || '';
+    const checkin = extractCheckin(fullText);
+
+    hideTypingIndicator();
+
+    const coachMsg = {
+      user_id: state.user.id,
+      role: 'assistant',
+      content: fullText,  // store full incl. checkin
+      created_at: new Date().toISOString(),
+    };
+    state.messages.push(coachMsg);
+    appendMessageToView(coachMsg);
+
+    // Persist coach message + checkin in parallel
+    supabase.from('messages').insert({
+      user_id: state.user.id, role: 'assistant', content: fullText,
+    }).then(({ error }) => {
+      if (error) console.error('Persist coach msg error:', error);
+    });
+    if (checkin) saveCheckin(checkin);
+
+  } catch (err) {
+    console.error('Send error:', err);
+    showChatError(err.message || 'Could not reach the coach. Try again.');
+  } finally {
+    state.sending = false;
+    document.getElementById('send-btn').disabled = !document.getElementById('chat-input').value.trim();
+  }
+}
+
+async function sendInitialGreeting() {
+  // Send a synthetic "user" message asking the coach to greet, then store only the response
+  state.sending = true;
+  showTypingIndicator();
+  try {
+    const res = await fetch(CHAT_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemPrompt: state.profile.system_prompt,
+        messages: [{
+          role: 'user',
+          content: 'I just finished onboarding. This is our first conversation. Greet me warmly in 2-3 sentences max. Reference one thing you know about me from my profile. End with one simple question to start us off. Do not include the CHECKIN tag this time.',
+        }],
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Greeting failed');
+    hideTypingIndicator();
+    const coachMsg = {
+      user_id: state.user.id,
+      role: 'assistant',
+      content: data.text,
+      created_at: new Date().toISOString(),
+    };
+    state.messages.push(coachMsg);
+    // Clear empty state
+    document.getElementById('chat-body').innerHTML = '';
+    appendMessageToView(coachMsg);
+    supabase.from('messages').insert({
+      user_id: state.user.id, role: 'assistant', content: data.text,
+    });
+  } catch (err) {
+    hideTypingIndicator();
+    console.error('Greeting error:', err);
+    // Don't block — leave the empty state showing
+    renderMessageList();
+  } finally {
+    state.sending = false;
+  }
+}
+
+// ============================================================
+// MENU
+// ============================================================
+function openMenu() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Settings</div>
+      <div class="modal-sub">Logged in as ${state.user.email}</div>
+      <button class="modal-row" id="menu-redo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        Redo onboarding
+      </button>
+      <button class="modal-row modal-row-danger" id="menu-logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Log out
+      </button>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  document.getElementById('menu-redo').onclick = async () => {
+    if (!confirm('Reset your coaching profile and redo onboarding?')) return;
+    await supabase.from('profiles').update({ onboarded: false }).eq('id', state.user.id);
+    onbState.step = 0; onbState.answers = {};
+    overlay.remove();
+    await route();
+  };
+  document.getElementById('menu-logout').onclick = async () => {
+    overlay.remove();
+    await supabase.auth.signOut();
+    state.authMode = 'login';
+    state.messages = [];
+    await route();
+  };
+}
+
+// ============================================================
+// INIT
+// ============================================================
+supabase.auth.onAuthStateChange((event) => {
+  if (event === 'SIGNED_OUT') route();
+});
+
+route();
+</script>
+
+</body>
+</html>
