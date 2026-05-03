@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/atypicaldoc/op75#readme",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.92.0",
     "@supabase/supabase-js": "^2.105.1",
     "web-push": "^3.6.7"
   }
