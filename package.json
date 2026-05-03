@@ -1,0 +1,25 @@
+{
+  "name": "op75",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atypicaldoc/op75.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/atypicaldoc/op75/issues"
+  },
+  "homepage": "https://github.com/atypicaldoc/op75#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.105.1",
+    "web-push": "^3.6.7"
+  }
+}
