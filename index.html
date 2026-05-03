@@ -3,20 +3,20 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<meta name="theme-color" content="#0a0a0f" />
+<meta name="theme-color" content="#f5f4ef" />
 <title>Operation 75</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
   :root {
+    /* Auth + onboarding palette (orange brand) */
     --bg: #0a0a0f;
     --bg-elev: #14141c;
     --bg-card: #1a1a24;
-    --bg-bubble-user: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-    --bg-bubble-coach: #1a1a24;
     --border: #26262f;
     --border-strong: #353541;
     --text: #f5f5f7;
@@ -29,6 +29,40 @@
     --danger: #ef4444;
     --gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
     --gradient-soft: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(234, 88, 12, 0.05) 100%);
+
+    /* Chat light theme */
+    --chat-bg: #ffffff;
+    --chat-header-bg: #ffffff;
+    --chat-border: #ebebeb;
+    --chat-msg-in: #1a1a1a;
+    --chat-meta: #bbb;
+    --chat-input-bg: #f4f4f4;
+    --chat-day-bg: #f0f0f0;
+    --chat-day-text: #aaa;
+
+    /* WhatsApp iOS dark palette */
+    --wa-bg: #0b141a;
+    --wa-chat-bg: #0b141a;
+    --wa-header: #1f2c33;
+    --wa-bubble-out: #005c4b;
+    --wa-bubble-out-tail: #005c4b;
+    --wa-bubble-in: #1f2c33;
+    --wa-bubble-in-tail: #1f2c33;
+    --wa-text: #e9edef;
+    --wa-text-secondary: #8696a0;
+    --wa-text-time: #a4b1b8;
+    --wa-divider: #1f2c33;
+    --wa-input-bg: #1f2c33;
+    --wa-input-text: #e9edef;
+    --wa-tab-bar: #1f2c33;
+    --wa-tab-active: #00a884;
+    --wa-tab-inactive: #8696a0;
+    --wa-link: #53bdeb;
+    --wa-tick-read: #53bdeb;
+    --wa-tick-sent: #8696a0;
+    --wa-day-divider-bg: #1d2c33;
+    --wa-day-divider-text: #8696a0;
+    --wa-system-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
   }
 
   html, body {
@@ -63,7 +97,7 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* AUTH */
+  /* AUTH (unchanged orange branding) */
   .auth-screen {
     height: 100dvh; width: 100vw;
     display: flex; flex-direction: column;
@@ -154,7 +188,7 @@
     font-size: 12px; color: var(--text-faint); letter-spacing: 0.05em;
   }
 
-  /* ONBOARDING */
+  /* ONBOARDING (unchanged orange branding) */
   .onb {
     height: 100dvh; width: 100vw;
     display: flex; flex-direction: column;
@@ -287,223 +321,309 @@
     line-height: 1.5; min-height: 42px; transition: opacity 0.2s;
   }
 
-  /* CHAT */
-  .chat-screen {
+  /* ============== WHATSAPP iOS UI ============== */
+  .wa-app {
     height: 100dvh; width: 100vw;
+    background: var(--chat-bg);
     display: flex; flex-direction: column;
-    background: var(--bg);
+    color: #1a1915;
+    font-family: var(--wa-system-font);
+    -webkit-font-smoothing: antialiased;
   }
-  .chat-header {
+
+  /* Top header (per-tab) */
+  .wa-header {
     flex: 0 0 auto;
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-elev);
-    display: flex; align-items: center; justify-content: space-between;
+    background: var(--chat-header-bg);
+    padding: calc(env(safe-area-inset-top) + 8px) 16px 10px;
+    display: flex; align-items: center;
+    border-bottom: 0.5px solid var(--chat-border);
     gap: 12px;
+    min-height: 56px;
+    width: 100%;
   }
-  .chat-header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
-  .chat-avatar {
-    width: 38px; height: 38px;
-    background: var(--gradient);
-    border-radius: 50%;
+  .wa-header-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #e8650a; color: #fff;
+    font-size: 14px; font-weight: 500;
     display: flex; align-items: center; justify-content: center;
-    font-weight: 800; color: white; font-size: 14px;
-    letter-spacing: 0.05em;
     flex-shrink: 0;
   }
-  .chat-title-block { min-width: 0; }
-  .chat-title {
-    font-size: 15px; font-weight: 700; letter-spacing: -0.01em;
-    line-height: 1.2;
+  .wa-header-back {
+    background: none; border: none; padding: 4px;
+    color: var(--wa-link); font-size: 17px; font-family: inherit;
+    cursor: pointer; display: flex; align-items: center; gap: 2px;
+  }
+  .wa-header-back svg { width: 20px; height: 20px; }
+  .wa-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00a884 0%, #008c6f 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; color: white; font-size: 14px;
+    flex-shrink: 0;
+  }
+  .wa-header-info { flex: 1; min-width: 0; cursor: pointer; }
+  .wa-header-name {
+    font-size: 15px; font-weight: 500; line-height: 1.2;
+    color: #111;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .chat-status {
-    font-size: 11px; color: var(--success);
-    line-height: 1.2; margin-top: 2px;
-    display: flex; align-items: center; gap: 4px;
+  .wa-header-status {
+    font-size: 11px; color: #e8650a;
+    line-height: 1.3; margin-top: 3px;
+    display: flex; align-items: center; gap: 5px;
   }
-  .chat-status::before {
-    content: ''; display: inline-block;
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--success);
+  .wa-status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #e8650a;
   }
-  .chat-actions { display: flex; gap: 8px; flex-shrink: 0; }
-  .icon-btn {
+  .wa-header-icons { display: flex; gap: 8px; flex-shrink: 0; }
+  .wa-header-icon {
     width: 36px; height: 36px;
-    background: transparent; border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text-dim); cursor: pointer;
+    background: transparent; border: none;
+    color: var(--wa-text); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s, color 0.15s;
+    border-radius: 50%;
+    transition: background 0.15s;
   }
-  .icon-btn:hover { background: var(--bg-card); color: var(--text); }
-  .icon-btn:active { transform: scale(0.95); }
-  .icon-btn svg { width: 18px; height: 18px; }
+  .wa-header-icon:hover { background: rgba(255,255,255,0.05); }
+  .wa-header-icon svg { width: 22px; height: 22px; }
+  .wa-header-title-only {
+    font-size: 28px; font-weight: 700; color: #1a1915;
+    flex: 1;
+    letter-spacing: -0.01em;
+  }
 
-  .chat-body {
+ .wa-chat-body {
     flex: 1;
     overflow-y: auto;
-    padding: 20px 16px 12px;
+    padding: 16px 14px;
     display: flex; flex-direction: column; gap: 14px;
+    background-color: var(--chat-bg);
     scroll-behavior: smooth;
+    width: 100%;
+    box-sizing: border-box;
   }
-  .chat-day-divider {
-    text-align: center;
-    font-size: 11px; font-weight: 600;
-    color: var(--text-faint);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 8px 0 4px;
+
+  .wa-day-divider {
+    align-self: center;
+    background: var(--chat-day-bg);
+    color: var(--chat-day-text);
+    font-size: 11px; font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin: 4px 0;
   }
-  .msg {
-    max-width: 82%;
-    display: flex; flex-direction: column; gap: 4px;
-    animation: msgIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  .wa-msg {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    animation: msgIn 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   }
   @keyframes msgIn {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  .msg-user { align-self: flex-end; align-items: flex-end; }
-  .msg-coach { align-self: flex-start; align-items: flex-start; }
-  .bubble {
-    padding: 11px 16px;
-    border-radius: 18px;
+
+  .wa-msg-out { text-align: right; padding-left: 20%; }
+  .wa-msg-in { text-align: left; padding-right: 20%; }
+
+  .wa-sender {
+    font-size: 12px;
+    font-weight: 500;
+    color: #e8650a;
+    margin-bottom: 3px;
+  }
+
+  .wa-content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .wa-msg-in .wa-content { display: block; }
+  .wa-msg-out .wa-content { display: inline-block; text-align: left; }
+
+  .wa-msg-in .wa-text {
+    color: var(--chat-msg-in);
+    font-size: 15px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    display: block;
+  }
+
+  .wa-msg-out .wa-text {
+    background: #e8650a;
+    color: #fff;
     font-size: 15px;
     line-height: 1.45;
-    word-wrap: break-word;
-    white-space: pre-wrap;
-  }
-  .msg-user .bubble {
-    background: var(--bg-bubble-user);
-    color: white;
-    border-bottom-right-radius: 6px;
-    box-shadow: 0 4px 14px -6px var(--accent-glow);
-  }
-  .msg-coach .bubble {
-    background: var(--bg-bubble-coach);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-bottom-left-radius: 6px;
-  }
-  .msg-time {
-    font-size: 10px;
-    color: var(--text-faint);
-    padding: 0 8px;
-    letter-spacing: 0.03em;
-  }
-  .typing-bubble {
-    background: var(--bg-bubble-coach);
-    border: 1px solid var(--border);
+    padding: 9px 14px;
     border-radius: 18px;
-    border-bottom-left-radius: 6px;
-    padding: 14px 18px;
-    display: inline-flex;
-    gap: 5px;
-    align-items: center;
+    display: inline-block;
+    white-space: pre-wrap;
+    text-align: left;
   }
-  .typing-dot {
-    width: 7px; height: 7px;
-    background: var(--text-faint);
+
+  .wa-meta {
+    color: var(--chat-meta);
+    font-size: 11px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .wa-msg-out .wa-meta { justify-content: flex-end; }
+
+  .wa-tick { display: inline-flex; color: #e8650a; opacity: 0.7; }
+  .wa-tick svg { width: 12px; height: 9px; }
+  .wa-tick.unread { opacity: 0.4; }
+
+  .wa-typing {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .wa-typing-bubble {
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: inline-flex; gap: 4px; align-items: center;
+  }
+  .wa-typing-dot {
+    width: 6px; height: 6px;
+    background: #888;
     border-radius: 50%;
     animation: typing 1.2s infinite ease-in-out;
   }
-  .typing-dot:nth-child(2) { animation-delay: 0.15s; }
-  .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+  .wa-typing-dot:nth-child(2) { animation-delay: 0.15s; }
+  .wa-typing-dot:nth-child(3) { animation-delay: 0.3s; }
   @keyframes typing {
     0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
-    30% { opacity: 1; transform: translateY(-4px); }
+    30% { opacity: 1; transform: translateY(-3px); }
   }
 
-  .chat-empty {
+  /* Empty state */
+  .wa-empty {
     flex: 1;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     text-align: center; padding: 40px 24px;
-    gap: 16px;
+    gap: 14px;
   }
-  .chat-empty-icon {
+  .wa-empty-icon {
     width: 64px; height: 64px;
     border-radius: 18px;
-    background: var(--gradient-soft);
-    border: 1px solid var(--accent);
+    background: rgba(232,101,10,0.1);
+    border: 1px solid rgba(232,101,10,0.3);
     display: flex; align-items: center; justify-content: center;
     font-size: 28px;
-    margin-bottom: 8px;
   }
-  .chat-empty-title { font-size: 20px; font-weight: 700; }
-  .chat-empty-text {
-    font-size: 14px; color: var(--text-dim);
-    line-height: 1.5; max-width: 280px;
-  }
-  .chat-empty-prompts {
+  .wa-empty-title { font-size: 18px; font-weight: 600; color: #1a1915; }
+  .wa-empty-text { font-size: 14px; color: #888; line-height: 1.5; max-width: 280px; }
+  .wa-empty-prompts {
     margin-top: 12px;
     display: flex; flex-direction: column; gap: 8px;
     width: 100%; max-width: 320px;
   }
-  .empty-prompt {
+  .wa-empty-prompt {
     padding: 12px 16px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
+    background: #fff;
+    border: 0.5px solid var(--chat-border);
     border-radius: 12px;
-    color: var(--text);
+    color: #1a1915;
     font-size: 14px;
     font-family: inherit;
     cursor: pointer;
     text-align: left;
-    transition: border-color 0.15s, background 0.15s;
   }
-  .empty-prompt:hover { border-color: var(--accent); }
+  .wa-empty-prompt:active { background: var(--chat-input-bg); }
 
-  .chat-input-area {
+  /* Input bar */
+  .wa-input-area {
     flex: 0 0 auto;
-    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--border);
-    background: var(--bg-elev);
+    padding: 6px 8px calc(8px + env(safe-area-inset-bottom));
+    background: var(--chat-header-bg);
+    border-top: 0.5px solid var(--chat-border);
+    display: flex; align-items: flex-end; gap: 6px;
+    width: 100%;
   }
-  .chat-input-row {
-    display: flex; gap: 8px; align-items: flex-end;
-    background: var(--bg-card);
-    border: 1.5px solid var(--border);
-    border-radius: 24px;
-    padding: 4px 4px 4px 16px;
-    transition: border-color 0.15s;
+  .wa-input-pill {
+    flex: 1;
+    background: var(--chat-input-bg);
+    border-radius: 22px;
+    padding: 6px 10px 6px 12px;
+    display: flex; align-items: center; gap: 8px;
+    min-height: 38px;
   }
-  .chat-input-row:focus-within { border-color: var(--accent); }
-  .chat-input {
+  .wa-input-icon {
+    background: transparent; border: none;
+    color: #aaa;
+    cursor: pointer;
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    padding: 0;
+  }
+  .wa-input-icon svg { width: 22px; height: 22px; }
+  .wa-input {
     flex: 1;
     background: transparent;
     border: none;
-    color: var(--text);
+    color: #1a1915;
     font-size: 16px;
     font-family: inherit;
-    line-height: 1.4;
-    padding: 10px 0;
+    line-height: 1.3;
+    padding: 6px 0;
     resize: none;
-    max-height: 140px;
-    min-height: 24px;
+    max-height: 120px;
+    min-height: 22px;
   }
-  .chat-input:focus { outline: none; }
-  .chat-input::placeholder { color: var(--text-faint); }
-  .send-btn {
-    width: 40px; height: 40px;
-    background: var(--gradient);
+  .wa-input:focus { outline: none; }
+  .wa-input::placeholder { color: #aaa; }
+
+  .wa-send-btn {
+    width: 42px; height: 42px;
+    background: #e8650a;
     border: none; border-radius: 50%;
     color: white;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-    transition: opacity 0.15s, transform 0.1s;
+    transition: transform 0.1s;
   }
-  .send-btn:disabled {
-    background: var(--bg);
-    color: var(--text-faint);
-    cursor: not-allowed;
-  }
-  .send-btn:active:not(:disabled) { transform: scale(0.92); }
-  .send-btn svg { width: 18px; height: 18px; }
+  .wa-send-btn:active { transform: scale(0.92); }
+  .wa-send-btn svg { width: 22px; height: 22px; }
+  .wa-mic-btn { background: #e8650a; }
 
-  .chat-error-banner {
+  /* Bottom tab bar */
+  .wa-tab-bar {
+    flex: 0 0 auto;
+    background: var(--chat-header-bg);
+    border-top: 0.5px solid var(--chat-border);
+    display: flex;
+    padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
+    width: 100%;
+  }
+  .wa-tab {
+    flex: 1;
+    background: none; border: none;
+    padding: 6px 4px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    cursor: pointer;
+    color: #aaa;
+    font-family: inherit;
+    transition: color 0.15s;
+  }
+  .wa-tab.active { color: #e8650a; }
+  .wa-tab svg { width: 24px; height: 24px; }
+  .wa-tab-label {
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  /* Error banner */
+  .wa-error-banner {
     margin: 8px 16px;
     padding: 10px 14px;
     background: rgba(239, 68, 68, 0.1);
@@ -514,61 +634,361 @@
     line-height: 1.4;
   }
 
-  /* MENU MODAL */
+  /* ============== STATS / PLAN / SETTINGS TABS ============== */
+  .wa-tab-content {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--chat-bg);
+  }
+
+  /* Stats dashboard */
+  .stats-scroll {
+    flex: 1;
+    overflow-y: auto;
+    background: #f4f4f4;
+    padding: 12px 14px 32px;
+  }
+  .stats-insight {
+    background: #fff;
+    border: 0.5px solid var(--chat-border);
+    border-left: 3px solid #e8650a;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .stats-insight-icon {
+    font-size: 18px; flex-shrink: 0; margin-top: 1px;
+  }
+  .stats-insight-text {
+    font-size: 14px; color: #1a1915;
+    line-height: 1.55; flex: 1;
+  }
+  .stats-insight-loading {
+    color: #aaa; font-style: italic;
+  }
+  .stats-section-label {
+    font-size: 11px; font-weight: 700;
+    color: #aaa; letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 2px 6px;
+  }
+  .stats-cards-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .stats-card {
+    background: #fff;
+    border: 0.5px solid var(--chat-border);
+    border-radius: 12px;
+    padding: 14px 14px 12px;
+  }
+  .stats-card-label {
+    font-size: 11px; font-weight: 600;
+    color: #aaa; letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .stats-card-value {
+    font-size: 28px; font-weight: 700;
+    color: #1a1915; line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .stats-card-unit {
+    font-size: 14px; font-weight: 500;
+    color: #888; margin-left: 3px;
+  }
+  .stats-card-sub {
+    font-size: 12px; color: #aaa;
+    margin-top: 4px;
+  }
+  .stats-card-trend-up { color: #10b981; }
+  .stats-card-trend-down { color: #ef4444; }
+  .stats-card-empty {
+    font-size: 13px; color: #bbb;
+    font-style: italic; margin-top: 4px;
+  }
+  .stats-chart-card {
+    background: #fff;
+    border: 0.5px solid var(--chat-border);
+    border-radius: 12px;
+    padding: 14px 14px 10px;
+    margin-bottom: 10px;
+  }
+  .stats-chart-title {
+    font-size: 13px; font-weight: 600;
+    color: #1a1915; margin-bottom: 12px;
+  }
+  .stats-chart-wrap {
+    position: relative; height: 140px;
+  }
+  .stats-chart-empty {
+    height: 100px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: #bbb; font-style: italic;
+  }
+  .stats-compliance-bar-wrap {
+    margin-top: 6px;
+  }
+  .stats-compliance-bar-bg {
+    height: 8px; background: #f0f0f0;
+    border-radius: 4px; overflow: hidden;
+  }
+  .stats-compliance-bar-fill {
+    height: 100%; background: #e8650a;
+    border-radius: 4px;
+    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+  .stats-compliance-label {
+    font-size: 11px; color: #aaa;
+    margin-top: 5px;
+  }
+
+  /* Plan tab */
+  .plan-content { padding: 16px; }
+  .plan-intro {
+    font-size: 14px; color: #888;
+    line-height: 1.5; margin-bottom: 20px;
+    padding: 12px 14px;
+    background: var(--chat-input-bg);
+    border-radius: 10px;
+  }
+  .plan-day {
+    background: #fff;
+    border: 0.5px solid var(--chat-border);
+    border-radius: 12px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .plan-day-header {
+    padding: 14px 16px;
+    background: rgba(232,101,10,0.06);
+    border-bottom: 0.5px solid var(--chat-border);
+  }
+  .plan-day-label {
+    font-size: 11px; font-weight: 700;
+    color: #e8650a; letter-spacing: 0.12em;
+    margin-bottom: 4px;
+  }
+  .plan-day-title {
+    font-size: 17px; font-weight: 600; color: #1a1915;
+  }
+  .plan-day-sub {
+    font-size: 12px; color: #888;
+    margin-top: 2px;
+  }
+  .plan-exercise {
+    padding: 12px 16px;
+    border-bottom: 0.5px solid var(--chat-border);
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px;
+  }
+  .plan-exercise:last-child { border-bottom: none; }
+  .plan-exercise-name {
+    font-size: 15px; color: #1a1915;
+    line-height: 1.3;
+    flex: 1;
+  }
+  .plan-exercise-reps {
+    font-size: 13px; color: #e8650a;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .plan-daily {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: #fff;
+    border: 0.5px solid var(--chat-border);
+    border-radius: 12px;
+  }
+  .plan-daily-title {
+    font-size: 14px; font-weight: 700; color: #1a1915;
+    margin-bottom: 10px;
+    letter-spacing: 0.02em;
+  }
+  .plan-daily-item {
+    font-size: 14px; color: #555;
+    line-height: 1.6;
+    padding-left: 14px;
+    position: relative;
+  }
+  .plan-daily-item::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #e8650a;
+    font-weight: 700;
+  }
+
+  /* Settings tab */
+  .settings-content { padding: 0; }
+  .settings-profile {
+    padding: 20px 16px;
+    display: flex; align-items: center; gap: 14px;
+    border-bottom: 0.5px solid var(--chat-border);
+    background: #fff;
+  }
+  .settings-avatar {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: var(--gradient);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; color: white; font-size: 22px;
+    flex-shrink: 0;
+  }
+  .settings-profile-info { flex: 1; min-width: 0; }
+  .settings-name {
+    font-size: 18px; font-weight: 600; color: #1a1915;
+    margin-bottom: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .settings-email {
+    font-size: 13px; color: #888;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .settings-section {
+    margin-top: 16px;
+  }
+  .settings-section-label {
+    font-size: 12px; font-weight: 600;
+    color: #aaa;
+    letter-spacing: 0.04em;
+    padding: 0 16px 6px;
+    text-transform: uppercase;
+  }
+  .settings-row {
+    width: 100%;
+    padding: 14px 16px;
+    background: #fff;
+    border: none;
+    border-bottom: 0.5px solid var(--chat-border);
+    color: #1a1915;
+    font-size: 15px;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
+    display: flex; align-items: center; gap: 14px;
+    transition: background 0.15s;
+  }
+  .settings-row:hover { background: var(--chat-input-bg); }
+  .settings-row:active { background: var(--chat-input-bg); }
+  .settings-row svg { width: 22px; height: 22px; color: #e8650a; flex-shrink: 0; }
+  .settings-row-text { flex: 1; }
+  .settings-row-arrow {
+    color: #aaa;
+    font-size: 18px;
+  }
+  .settings-row-danger { color: #ef4444; }
+  .settings-row-danger svg { color: #ef4444; }
+  .settings-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--chat-border);
+    margin-top: 0;
+  }
+  .settings-stat {
+    background: #fff;
+    padding: 14px 16px;
+  }
+  .settings-stat-label {
+    font-size: 11px; color: #aaa;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .settings-stat-value {
+    font-size: 16px; font-weight: 600; color: #1a1915;
+  }
+
+  /* Notification toggle */
+  .settings-row-toggle {
+    width: 100%;
+    padding: 14px 16px;
+    background: #fff;
+    border: none;
+    border-bottom: 0.5px solid var(--chat-border);
+    color: #1a1915;
+    font-size: 15px;
+    font-family: inherit;
+    text-align: left;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .settings-row-toggle svg { width: 22px; height: 22px; color: #e8650a; flex-shrink: 0; }
+  .settings-row-toggle-text { flex: 1; }
+  .settings-row-toggle-sub {
+    font-size: 12px; color: #aaa;
+    margin-top: 2px; line-height: 1.4;
+  }
+  .toggle-switch {
+    position: relative; width: 51px; height: 31px; flex-shrink: 0;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; inset: 0;
+    background: #ddd; border-radius: 31px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 27px; height: 27px;
+    left: 2px; top: 2px;
+    background: white; border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle-switch input:checked + .toggle-slider { background: #e8650a; }
+  .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+  /* Confirm modal */
   .modal-overlay {
     position: fixed; inset: 0;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
     z-index: 200;
-    display: flex; align-items: flex-end; justify-content: center;
-    animation: fadeIn 0.2s;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    animation: fadeIn 0.15s;
   }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  .modal-sheet {
+  .modal-card {
     width: 100%;
-    max-width: 480px;
-    background: var(--bg-elev);
-    border-top-left-radius: 24px;
-    border-top-right-radius: 24px;
-    border-top: 1px solid var(--border);
-    padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
-    animation: slideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 320px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px 20px 8px;
+    text-align: center;
   }
-  @keyframes slideUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
+  .modal-card-title {
+    font-size: 17px; font-weight: 600;
+    color: #1a1915;
+    margin-bottom: 8px;
   }
-  .modal-handle {
-    width: 36px; height: 4px;
-    background: var(--border-strong); border-radius: 2px;
-    margin: -8px auto 18px;
+  .modal-card-text {
+    font-size: 14px; color: #888;
+    line-height: 1.4;
+    margin-bottom: 18px;
   }
-  .modal-title {
-    font-size: 18px; font-weight: 700;
-    margin-bottom: 4px;
+  .modal-card-actions {
+    display: flex;
+    border-top: 0.5px solid var(--chat-border);
+    margin: 0 -20px;
   }
-  .modal-sub {
-    font-size: 13px; color: var(--text-dim);
-    margin-bottom: 20px;
-  }
-  .modal-row {
-    width: 100%;
-    padding: 14px 16px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    color: var(--text);
-    font-size: 15px;
+  .modal-card-btn {
+    flex: 1;
+    background: none; border: none;
+    padding: 12px;
+    color: #e8650a;
+    font-size: 16px; font-weight: 500;
     font-family: inherit;
     cursor: pointer;
-    text-align: left;
-    margin-bottom: 8px;
-    display: flex; align-items: center; gap: 10px;
-    transition: border-color 0.15s;
   }
-  .modal-row:hover { border-color: var(--border-strong); }
-  .modal-row-danger { color: #fca5a5; border-color: rgba(239, 68, 68, 0.3); }
-  .modal-row svg { width: 18px; height: 18px; opacity: 0.7; }
+  .modal-card-btn.primary { font-weight: 600; }
+  .modal-card-btn.danger { color: #ff6b6b; font-weight: 600; }
+  .modal-card-btn:not(:last-child) { border-right: 0.5px solid #2a3942; }
 </style>
 </head>
 <body>
@@ -589,6 +1009,11 @@ const SUPABASE_URL = 'https://zmznsvgdwmptqakrfxtc.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inptem5zdmdkd21wdHFha3JmeHRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MjA3NDQsImV4cCI6MjA5MzA5Njc0NH0.Iq2-krvKn01P9dFcYrx7SoaAbUTA8-CqnwJiKe3mp0M';
 const CHAT_FN = '/.netlify/functions/chat';
 const PROMPT_FN = '/.netlify/functions/generate-prompt';
+const PLAN_FN = '/.netlify/functions/generate-plan';
+const INSIGHT_FN = '/.netlify/functions/generate-insight';
+const SAVE_SUB_FN = '/.netlify/functions/save-subscription';
+const REDEEM_FN = '/.netlify/functions/redeem-coupon';
+const VAPID_PUBLIC_KEY = 'BBIDG2YH5U3s49MBgbfoGWRC1r-Myn1GOgQslcPANj3qWLvENxyjwflsPHWho5IxEcHO2gHypWgQUN10puZJLtU';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -598,6 +1023,12 @@ const state = {
   authMode: 'signup',
   messages: [],
   sending: false,
+  activeTab: 'chats', // chats | stats | plan | settings
+  statsCache: {
+    insight: null,
+    insightDate: null,
+    charts: {},
+  },
 };
 
 const app = document.getElementById('app');
@@ -617,8 +1048,108 @@ async function route() {
   const { data: profile } = await supabase
     .from('profiles').select('*').eq('id', session.user.id).single();
   state.profile = profile;
-  if (!profile?.onboarded) renderOnboarding();
-  else renderChat();
+  if (!profile?.onboarded) {
+    renderOnboarding();
+    return;
+  }
+  // Access gate — check after onboarding so new users can complete setup
+  const now = new Date();
+  const expiry = profile.access_expires_at ? new Date(profile.access_expires_at) : null;
+  if (!expiry || expiry <= now) {
+    renderCouponScreen();
+    return;
+  }
+  renderMainApp();
+}
+
+// ============================================================
+// COUPON SCREEN
+// ============================================================
+function renderCouponScreen() {
+  const isExpired = !!(state.profile?.access_expires_at);
+  app.innerHTML = `
+    <div class="auth-screen">
+      <div class="auth-hero">
+        <div class="auth-mark">OPERATION 75</div>
+        <div class="auth-title">Operation <span class="num">75</span></div>
+        <p class="auth-tagline">${isExpired ? 'Your access has expired. Enter a code from MD to continue.' : 'Enter your access code to get started.'}</p>
+      </div>
+      <div class="auth-form" style="max-width: 380px; width: 100%; margin: 0 auto; gap: 14px; display: flex; flex-direction: column;">
+        <div class="field">
+          <label for="coupon-input">Access code</label>
+          <input
+            type="text"
+            id="coupon-input"
+            placeholder="e.g. MD-K7X2"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            style="text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;"
+            maxlength="7"
+          />
+        </div>
+        <div class="auth-error" id="coupon-error"></div>
+        <button class="btn-primary" id="coupon-submit" disabled>Activate</button>
+        <div class="auth-toggle">
+          Not you? <button type="button" id="coupon-logout">Log out</button>
+        </div>
+      </div>
+      <div class="auth-foot">YOUR BODY · YOUR PLAN · YOUR COACH</div>
+    </div>`;
+
+  const input = document.getElementById('coupon-input');
+  const btn = document.getElementById('coupon-submit');
+  const errorEl = document.getElementById('coupon-error');
+
+  input.addEventListener('input', () => {
+    // Auto-insert hyphen after MD
+    let val = input.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+    if (val.length >= 2 && !val.includes('-')) {
+      val = val.slice(0, 2) + '-' + val.slice(2);
+    }
+    input.value = val;
+    btn.disabled = val.length < 7;
+    errorEl.textContent = '';
+  });
+
+  btn.onclick = async () => {
+    const code = input.value.trim();
+    errorEl.textContent = '';
+    btn.disabled = true;
+    btn.textContent = 'Activating...';
+    try {
+      const res = await fetch(REDEEM_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, userId: state.user.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errorEl.textContent = data.error || 'Invalid code. Try again.';
+        btn.disabled = false;
+        btn.textContent = 'Activate';
+        return;
+      }
+      // Update local profile so route() sees the new expiry
+      state.profile.access_expires_at = data.access_expires_at;
+      await route();
+    } catch (err) {
+      errorEl.textContent = 'Something went wrong. Try again.';
+      btn.disabled = false;
+      btn.textContent = 'Activate';
+    }
+  };
+
+  document.getElementById('coupon-logout').onclick = async () => {
+    await supabase.auth.signOut();
+    state.authMode = 'login';
+    await route();
+  };
+
+  // Allow Enter key
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !btn.disabled) btn.click();
+  });
 }
 
 // ============================================================
@@ -655,7 +1186,7 @@ function renderAuth() {
           <button type="button" id="toggle-mode">${isSignup ? 'Log in' : 'Create account'}</button>
         </div>
       </form>
-      <div class="auth-foot">82 KG → 75 KG · LEAN · ATHLETIC · SHARP</div>
+      <div class="auth-foot">YOUR BODY · YOUR PLAN · YOUR COACH</div>
     </div>`;
   document.getElementById('toggle-mode').onclick = () => {
     state.authMode = isSignup ? 'login' : 'signup';
@@ -709,32 +1240,33 @@ function friendlyError(msg) {
 }
 
 // ============================================================
-// ONBOARDING
+// ONBOARDING (now 11 questions, stores raw answers as JSON)
 // ============================================================
 const ONBOARDING_QUESTIONS = [
-  { kind: 'welcome', title: 'Let\'s build your coach.', text: 'Nine quick questions. Three minutes. After this, your coach knows you personally — your schedule, your body, what trips you up. Every conversation starts from there.', cta: 'Start' },
-  { kind: 'options', field: 'age_band', label: 'Question 1 of 9', title: 'How old are you?', hint: 'Affects how we think about recovery and intensity.', options: [
+  { kind: 'welcome', title: 'Let\'s build your coach.', text: 'Eleven quick questions. About four minutes. After this, your coach knows you personally. Your schedule, your body, what trips you up. Every conversation starts from there.', cta: 'Start' },
+  { kind: 'text', field: 'occupation', label: 'Question 1 of 11', title: 'What do you do?', hint: 'Your work shapes your day. The coach needs to know.', placeholder: 'e.g. Doctor running a hospital. Software engineer at a startup. Teacher with two kids at home.', minLength: 10 },
+  { kind: 'options', field: 'age_band', label: 'Question 2 of 11', title: 'How old are you?', hint: 'Affects how we think about recovery and intensity.', options: [
     { value: 'under_25', label: 'Under 25' },
-    { value: '25_34', label: '25 — 34' },
-    { value: '35_44', label: '35 — 44' },
-    { value: '45_54', label: '45 — 54' },
+    { value: '25_34', label: '25 to 34' },
+    { value: '35_44', label: '35 to 44' },
+    { value: '45_54', label: '45 to 54' },
     { value: '55_plus', label: '55 and above' },
   ]},
-  { kind: 'options', field: 'sex', label: 'Question 2 of 9', title: 'Sex?', hint: 'Used for protein math and body composition expectations.', options: [
+  { kind: 'options', field: 'sex', label: 'Question 3 of 11', title: 'Sex?', hint: 'Used for protein math and body composition expectations.', options: [
     { value: 'male', label: 'Male' },
     { value: 'female', label: 'Female' },
     { value: 'prefer_not', label: 'Prefer not to say' },
   ]},
-  { kind: 'numbers', label: 'Question 3 of 9', title: 'Your height?', hint: 'In centimeters. Roughly is fine.', fields: [
+  { kind: 'numbers', label: 'Question 4 of 11', title: 'Your height?', hint: 'In centimeters. Roughly is fine.', fields: [
     { field: 'height_cm', label: 'Height', suffix: 'cm', min: 120, max: 230, placeholder: '170' },
   ]},
-  { kind: 'numbers', label: 'Question 4 of 9', title: 'Where you are now and where you want to be.', hint: 'Today\'s weight and your real target.', fields: [
+  { kind: 'numbers', label: 'Question 5 of 11', title: 'Where you are now and where you want to be.', hint: 'Today\'s weight and your real target.', fields: [
     { field: 'starting_weight_kg', label: 'Today', suffix: 'kg', min: 35, max: 200, placeholder: '80' },
     { field: 'target_weight_kg', label: 'Target', suffix: 'kg', min: 35, max: 200, placeholder: '75' },
   ]},
-  { kind: 'text', field: 'daily_schedule', label: 'Question 5 of 9', title: 'What does your day actually look like?', hint: 'Work, hours, when you\'re free. Keep it real, not aspirational.', placeholder: 'e.g. Run a clinic. Out of the house 9am to 9pm. Free between 8-10am in the morning and after 9pm at night. Eat dinner late.', minLength: 30 },
-  { kind: 'chips', field: 'equipment', label: 'Question 6 of 9', title: 'What can you train with?', hint: 'Tap everything you have access to.', options: ['Cable machine', 'Dumbbells', 'Barbell', 'Kettlebells', 'Resistance bands', 'Pull-up bar', 'Bodyweight only', 'Full gym membership'], minSelected: 1 },
-  { kind: 'options', field: 'diet_type', label: 'Question 7 of 9', title: 'How do you eat?', hint: 'Drives every nutrition recommendation.', options: [
+  { kind: 'text', field: 'daily_schedule', label: 'Question 6 of 11', title: 'What does your day actually look like?', hint: 'Work, hours, when you\'re free. Keep it real, not aspirational.', placeholder: 'e.g. Run a clinic. Out of the house 9am to 9pm. Free between 8 and 10am in the morning and after 9pm at night. Eat dinner late.', minLength: 30 },
+  { kind: 'chips', field: 'equipment', label: 'Question 7 of 11', title: 'What can you train with?', hint: 'Tap everything you have access to.', options: ['Cable machine', 'Dumbbells', 'Barbell', 'Kettlebells', 'Resistance bands', 'Pull-up bar', 'Bodyweight only', 'Full gym membership'], minSelected: 1 },
+  { kind: 'options', field: 'diet_type', label: 'Question 8 of 11', title: 'How do you eat?', hint: 'Drives every nutrition recommendation.', options: [
     { value: 'vegetarian', label: 'Vegetarian' },
     { value: 'vegan', label: 'Vegan' },
     { value: 'eggetarian', label: 'Vegetarian + eggs' },
@@ -742,8 +1274,9 @@ const ONBOARDING_QUESTIONS = [
     { value: 'jain', label: 'Jain' },
     { value: 'other', label: 'Something else' },
   ]},
-  { kind: 'text', field: 'starting_point', label: 'Question 8 of 9', title: 'Where are you starting from?', hint: 'Your fitness history. Have you done this before? What are you working with right now?', placeholder: 'e.g. Was lean 3 years ago, fell off after starting the business. Can do 5 push-ups. Zero pull-ups. Have tried and quit twice. Want to come back.', minLength: 40 },
-  { kind: 'text', field: 'main_obstacle', label: 'Question 9 of 9', title: 'What\'s the one thing that always trips you up?', hint: 'Be honest. The coach can\'t help with what it doesn\'t know.', placeholder: 'e.g. Late dinner. I get home at 9pm and eat heavy. I know it\'s the problem but the day eats me.', minLength: 20 },
+  { kind: 'text', field: 'starting_point', label: 'Question 9 of 11', title: 'Where are you starting from?', hint: 'Your fitness history. Have you done this before? What are you working with right now?', placeholder: 'e.g. Was lean 3 years ago, fell off after starting the business. Can do 5 push-ups. Zero pull-ups. Have tried and quit twice. Want to come back.', minLength: 40 },
+  { kind: 'text', field: 'main_obstacle', label: 'Question 10 of 11', title: 'What\'s the one thing that always trips you up?', hint: 'Be honest. The coach can\'t help with what it doesn\'t know.', placeholder: 'e.g. Late dinner. I get home at 9pm and eat heavy. I know it\'s the problem but the day eats me.', minLength: 20 },
+  { kind: 'text', field: 'primary_goals', label: 'Question 11 of 11', title: 'What do you actually want?', hint: 'In your own words. Not weight numbers. What does success look like?', placeholder: 'e.g. Lean and strong like I was three years ago. 5 pull-ups by year end. Energy to play with my kids without getting winded.', minLength: 20 },
   { kind: 'finalize' },
 ];
 
@@ -783,7 +1316,7 @@ function renderOnbStep() {
       <div class="onb-welcome-mark">OPERATION 75</div>
       <h1 class="onb-welcome-title">${q.title}</h1>
       <p class="onb-welcome-text">${q.text}</p>
-      <div class="onb-welcome-meta">9 QUESTIONS · ~3 MINUTES</div>
+      <div class="onb-welcome-meta">11 QUESTIONS · ~4 MINUTES</div>
     </div></div>`;
     bottom.innerHTML = `<button class="onb-cta" id="onb-next">${q.cta}</button>`;
     document.getElementById('onb-next').onclick = onbNext;
@@ -931,13 +1464,16 @@ function templateSystemPrompt(answers, name) {
   return `You are ${name}'s personal fitness coach inside Operation 75. Stay strictly within fitness and health. If asked anything outside that, redirect warmly back to the goal.
 
 WHO ${name.toUpperCase()} IS:
-${name}, ${answers.height_cm}cm, ${answers.starting_weight_kg}kg, target ${answers.target_weight_kg}kg. ${answers.diet_type} diet. Equipment: ${equipment}.
+${name}, ${answers.height_cm}cm, ${answers.starting_weight_kg}kg, target ${answers.target_weight_kg}kg. Works as: ${answers.occupation}. ${answers.diet_type} diet. Equipment: ${equipment}.
 
 THEIR REALITY: "${answers.daily_schedule}"
 STARTING FROM: "${answers.starting_point}"
 WHAT TRIPS THEM UP: "${answers.main_obstacle}"
+WHAT THEY WANT: "${answers.primary_goals}"
 
-Tone: warm, direct, like a friend who is also a serious coach. Reference their schedule. Never lecture. When they miss, ask one question — why — then solve it. End every response with one specific target.
+Tone: warm, direct, like a friend who is also a serious coach. Reference their schedule. Never lecture. When they miss, ask one question, why, then solve it. End every response with one specific target.
+
+LANGUAGE RULES: No motivational filler. No "great work" or "crushing it". No em dashes. No bullet lists in chat. Short sentences, often fragments. Vary openings.
 
 After every response, append [CHECKIN:{"workout_done":true,...}] on a new line. Only fields you actually know. App strips it before display.`;
 }
@@ -958,22 +1494,32 @@ async function finalizeOnboarding() {
   try {
     const name = state.profile?.name || state.user.email.split('@')[0];
 
-    // Try AI-generated system prompt; fall back to template on any error
-    let systemPrompt;
-    try {
-      const res = await fetch(PROMPT_FN, {
+    // Run both generations in parallel to halve onboarding time
+    const [promptResult, planResult] = await Promise.allSettled([
+      fetch(PROMPT_FN, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, answers: onbState.answers }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Prompt generation failed');
-      systemPrompt = data.systemPrompt;
-      if (!systemPrompt || systemPrompt.length < 200) throw new Error('Prompt too short');
-    } catch (promptErr) {
-      console.warn('AI prompt generation failed, using template:', promptErr);
+      }).then(r => r.json()),
+      fetch(PLAN_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers: onbState.answers }),
+      }).then(r => r.json()),
+    ]);
+
+    let systemPrompt;
+    if (promptResult.status === 'fulfilled' && promptResult.value?.systemPrompt?.length > 200) {
+      systemPrompt = promptResult.value.systemPrompt;
+    } else {
+      console.warn('AI prompt generation failed, using template:', promptResult.reason || promptResult.value);
       systemPrompt = templateSystemPrompt(onbState.answers, name);
     }
+
+    const workoutPlan = (planResult.status === 'fulfilled' && planResult.value?.plan)
+      ? planResult.value.plan
+      : null;
+    if (!workoutPlan) console.warn('Plan generation failed, will use default:', planResult.reason || planResult.value);
 
     const updatePayload = {
       age: ageBandToInt(onbState.answers.age_band),
@@ -981,12 +1527,16 @@ async function finalizeOnboarding() {
       height_cm: onbState.answers.height_cm,
       starting_weight_kg: onbState.answers.starting_weight_kg,
       target_weight_kg: onbState.answers.target_weight_kg,
+      occupation: onbState.answers.occupation,
       daily_schedule: onbState.answers.daily_schedule,
       equipment: (onbState.answers.equipment || []).join(', '),
       diet_type: onbState.answers.diet_type,
       current_fitness: onbState.answers.starting_point,
+      primary_goals: onbState.answers.primary_goals,
       obstacles: onbState.answers.main_obstacle,
+      onboarding_answers: onbState.answers, // raw JSON for future regeneration
       system_prompt: systemPrompt,
+      workout_plan: workoutPlan,
       onboarded: true,
       updated_at: new Date().toISOString(),
     };
@@ -1009,7 +1559,44 @@ async function finalizeOnboarding() {
 }
 
 // ============================================================
-// CHAT
+// MAIN APP — WhatsApp iOS shell with 4 tabs
+// ============================================================
+function renderMainApp() {
+  if (!state.activeTab) state.activeTab = 'chats';
+  app.innerHTML = `
+    <div class="wa-app">
+      <div id="wa-tab-content" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;"></div>
+      <div class="wa-tab-bar">
+        ${tabBtn('chats', 'Chats', `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`)}
+        ${tabBtn('stats', 'Stats', `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`)}
+        ${tabBtn('plan', 'Plan', `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v6m0 10v6M4.22 4.22l4.24 4.24m7.08 7.08l4.24 4.24M1 12h6m10 0h6M4.22 19.78l4.24-4.24m7.08-7.08l4.24-4.24"/></svg>`)}
+        ${tabBtn('settings', 'Settings', `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`)}
+      </div>
+    </div>`;
+  document.querySelectorAll('.wa-tab').forEach(btn => {
+    btn.onclick = () => {
+      state.activeTab = btn.dataset.tab;
+      renderActiveTab();
+      document.querySelectorAll('.wa-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === state.activeTab));
+    };
+  });
+  renderActiveTab();
+}
+
+function tabBtn(id, label, icon) {
+  return `<button class="wa-tab ${state.activeTab === id ? 'active' : ''}" data-tab="${id}">${icon}<span class="wa-tab-label">${label}</span></button>`;
+}
+
+function renderActiveTab() {
+  const container = document.getElementById('wa-tab-content');
+  if (state.activeTab === 'chats') renderChatTab(container);
+  else if (state.activeTab === 'stats') renderStatsTab(container);
+  else if (state.activeTab === 'plan') renderPlanTab(container);
+  else if (state.activeTab === 'settings') renderSettingsTab(container);
+}
+
+// ============================================================
+// CHAT TAB (WhatsApp style)
 // ============================================================
 function getInitials(name) {
   if (!name) return 'C';
@@ -1026,13 +1613,14 @@ function fmtDay(ts) {
   const d = new Date(ts);
   const today = new Date();
   const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
-  if (d.toDateString() === today.toDateString()) return 'TODAY';
-  if (d.toDateString() === yesterday.toDateString()) return 'YESTERDAY';
-  return d.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' }).toUpperCase();
+  if (d.toDateString() === today.toDateString()) return 'Today';
+  if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+  const diffDays = Math.floor((today - d) / (1000 * 60 * 60 * 24));
+  if (diffDays < 7) return d.toLocaleDateString([], { weekday: 'long' });
+  return d.toLocaleDateString([], { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 function stripCheckin(text) {
-  // Remove [CHECKIN:{...}] blocks from coach response before display
   return text.replace(/\[CHECKIN:\s*\{[\s\S]*?\}\]/g, '').trim();
 }
 
@@ -1080,65 +1668,55 @@ async function saveCheckin(checkin) {
   if (error) console.error('Save checkin error:', error);
 }
 
-async function renderChat() {
-  const name = state.profile?.name || state.user.email.split('@')[0];
-  state.messages = await loadMessages();
-
-  app.innerHTML = `
-    <div class="chat-screen">
-      <div class="chat-header">
-        <div class="chat-header-left">
-          <div class="chat-avatar">75</div>
-          <div class="chat-title-block">
-            <div class="chat-title">Your Coach</div>
-            <div class="chat-status">Online</div>
-          </div>
-        </div>
-        <div class="chat-actions">
-          <button class="icon-btn" id="menu-btn" aria-label="Menu">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-          </button>
-        </div>
+async function renderChatTab(container) {
+  const coachName = 'Bennet';
+  container.innerHTML = `
+    <div class="wa-header">
+      <div class="wa-header-avatar">B</div>
+      <div class="wa-header-info">
+        <div class="wa-header-name">${escapeHtml(coachName)}</div>
+        <div class="wa-header-status"><span class="wa-status-dot"></span>online</div>
       </div>
-      <div class="chat-body" id="chat-body"></div>
-      <div class="chat-input-area">
-        <div class="chat-input-row">
-          <textarea class="chat-input" id="chat-input" placeholder="Tell your coach about today..." rows="1"></textarea>
-          <button class="send-btn" id="send-btn" disabled aria-label="Send">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-          </button>
-        </div>
+    </div>
+    <div class="wa-chat-body" id="wa-chat-body"></div>
+    <div class="wa-input-area">
+      <div class="wa-input-pill">
+        <textarea class="wa-input" id="wa-chat-input" placeholder="Message" rows="1"></textarea>
       </div>
+      <button class="wa-send-btn" id="wa-send-btn" aria-label="Send" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" id="send-icon"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
     </div>`;
 
-  renderMessageList();
+  state.messages = await loadMessages();
+  renderChatMessages();
   setupChatInput();
-  document.getElementById('menu-btn').onclick = openMenu;
 
-  // If brand new user with no messages, send the first coach greeting
   if (state.messages.length === 0) {
     await sendInitialGreeting();
   }
 }
 
-function renderMessageList() {
-  const body = document.getElementById('chat-body');
+function renderChatMessages() {
+  const body = document.getElementById('wa-chat-body');
+  if (!body) return;
   if (!state.messages.length) {
     body.innerHTML = `
-      <div class="chat-empty">
-        <div class="chat-empty-icon">👋</div>
-        <div class="chat-empty-title">Say hi to start</div>
-        <div class="chat-empty-text">Your coach knows you already. Tell them how today went, ask about your plan, or just check in.</div>
-        <div class="chat-empty-prompts">
-          <button class="empty-prompt" data-prompt="Hey, let's do this. Where do we start?">Hey, let's do this. Where do we start?</button>
-          <button class="empty-prompt" data-prompt="What's my workout for today?">What's my workout for today?</button>
-          <button class="empty-prompt" data-prompt="Quick check-in on today">Quick check-in on today</button>
+      <div class="wa-empty">
+        <div class="wa-empty-icon">👋</div>
+        <div class="wa-empty-title">Say hi to start</div>
+        <div class="wa-empty-text">Your coach knows you already. Tell them how today went, ask about your plan, or just check in.</div>
+        <div class="wa-empty-prompts">
+          <button class="wa-empty-prompt" data-prompt="Hey, let's do this. Where do we start?">Hey, let's do this. Where do we start?</button>
+          <button class="wa-empty-prompt" data-prompt="What's my workout for today?">What's my workout for today?</button>
+          <button class="wa-empty-prompt" data-prompt="Quick check-in on today">Quick check-in on today</button>
         </div>
       </div>`;
-    document.querySelectorAll('.empty-prompt').forEach(btn => {
+    document.querySelectorAll('.wa-empty-prompt').forEach(btn => {
       btn.onclick = () => {
-        document.getElementById('chat-input').value = btn.dataset.prompt;
-        document.getElementById('chat-input').dispatchEvent(new Event('input'));
+        const input = document.getElementById('wa-chat-input');
+        input.value = btn.dataset.prompt;
+        input.dispatchEvent(new Event('input'));
         sendMessage();
       };
     });
@@ -1150,63 +1728,87 @@ function renderMessageList() {
   for (const m of state.messages) {
     const day = fmtDay(m.created_at);
     if (day !== lastDay) {
-      html += `<div class="chat-day-divider">${day}</div>`;
+      html += `<div class="wa-day-divider">${day.toUpperCase()}</div>`;
       lastDay = day;
     }
     const isUser = m.role === 'user';
     const content = isUser ? m.content : stripCheckin(m.content);
     if (!content) continue;
-    html += `
-      <div class="msg ${isUser ? 'msg-user' : 'msg-coach'}">
-        <div class="bubble">${escapeHtml(content)}</div>
-        <div class="msg-time">${fmtTime(m.created_at)}</div>
-      </div>`;
+    if (isUser) {
+      html += `
+        <div class="wa-msg wa-msg-out">
+          <div class="wa-content">
+            <div class="wa-text">${escapeHtml(content)}</div>
+            <div class="wa-meta">
+              <span>${fmtTime(m.created_at)}</span>
+              <span class="wa-tick"><svg viewBox="0 0 16 11" fill="currentColor" stroke="none"><path d="M11.071.653L4.752 6.91 2.929 5.105 2 6.026l2.752 2.726L12 1.574zM15.071.653L8.752 6.91 7 5.176l-.929.921L8.752 8.823 16 1.574z"/></svg></span>
+            </div>
+          </div>
+        </div>`;
+    } else {
+      html += `
+        <div class="wa-msg wa-msg-in">
+          <div class="wa-content">
+            <div class="wa-text">${escapeHtml(content)}</div>
+            <div class="wa-meta">
+              <span>${fmtTime(m.created_at)}</span>
+            </div>
+          </div>
+        </div>`;
+    }
   }
   body.innerHTML = html;
   scrollToBottom();
 }
 
 function escapeHtml(s) {
+  if (!s) return '';
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function scrollToBottom() {
-  const body = document.getElementById('chat-body');
+  const body = document.getElementById('wa-chat-body');
   if (body) body.scrollTop = body.scrollHeight;
 }
 
 function setupChatInput() {
-  const input = document.getElementById('chat-input');
-  const sendBtn = document.getElementById('send-btn');
+  const input = document.getElementById('wa-chat-input');
+  const sendBtn = document.getElementById('wa-send-btn');
+
   const autoResize = () => {
     input.style.height = 'auto';
-    input.style.height = Math.min(input.scrollHeight, 140) + 'px';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+  };
+  const updateSendBtn = () => {
+    sendBtn.style.display = input.value.trim() ? 'flex' : 'none';
   };
   input.addEventListener('input', () => {
-    sendBtn.disabled = !input.value.trim() || state.sending;
     autoResize();
+    updateSendBtn();
   });
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (!sendBtn.disabled) sendMessage();
+      if (input.value.trim()) sendMessage();
     }
   });
-  sendBtn.onclick = sendMessage;
+  sendBtn.onclick = () => {
+    if (input.value.trim()) sendMessage();
+  };
+  updateSendBtn();
 }
 
 function appendMessageToView(msg) {
-  const body = document.getElementById('chat-body');
-  // If empty state was showing, clear it
-  if (body.querySelector('.chat-empty')) body.innerHTML = '';
+  const body = document.getElementById('wa-chat-body');
+  if (!body) return;
+  if (body.querySelector('.wa-empty')) body.innerHTML = '';
 
-  // Add day divider if new day
-  const lastDivider = [...body.querySelectorAll('.chat-day-divider')].pop();
+  const lastDivider = [...body.querySelectorAll('.wa-day-divider')].pop();
   const day = fmtDay(msg.created_at);
-  if (!lastDivider || lastDivider.textContent !== day) {
+  if (!lastDivider || lastDivider.textContent !== day.toUpperCase()) {
     const div = document.createElement('div');
-    div.className = 'chat-day-divider';
-    div.textContent = day;
+    div.className = 'wa-day-divider';
+    div.textContent = day.toUpperCase();
     body.appendChild(div);
   }
 
@@ -1215,21 +1817,43 @@ function appendMessageToView(msg) {
   if (!content) return;
 
   const wrap = document.createElement('div');
-  wrap.className = `msg ${isUser ? 'msg-user' : 'msg-coach'}`;
-  wrap.innerHTML = `
-    <div class="bubble">${escapeHtml(content)}</div>
-    <div class="msg-time">${fmtTime(msg.created_at)}</div>`;
+  if (isUser) {
+    wrap.className = 'wa-msg wa-msg-out';
+    wrap.innerHTML = `
+      <div class="wa-content">
+        <div class="wa-text">${escapeHtml(content)}</div>
+        <div class="wa-meta">
+          <span>${fmtTime(msg.created_at)}</span>
+          <span class="wa-tick"><svg viewBox="0 0 16 11" fill="currentColor" stroke="none"><path d="M11.071.653L4.752 6.91 2.929 5.105 2 6.026l2.752 2.726L12 1.574zM15.071.653L8.752 6.91 7 5.176l-.929.921L8.752 8.823 16 1.574z"/></svg></span>
+        </div>
+      </div>`;
+  } else {
+    wrap.className = 'wa-msg wa-msg-in';
+    wrap.innerHTML = `
+      <div class="wa-content">
+        <div class="wa-text">${escapeHtml(content)}</div>
+        <div class="wa-meta">
+          <span>${fmtTime(msg.created_at)}</span>
+        </div>
+      </div>`;
+  }
   body.appendChild(wrap);
   scrollToBottom();
 }
 
 function showTypingIndicator() {
-  const body = document.getElementById('chat-body');
-  if (body.querySelector('.chat-empty')) body.innerHTML = '';
+  const body = document.getElementById('wa-chat-body');
+  if (!body) return;
+  if (body.querySelector('.wa-empty')) body.innerHTML = '';
   const wrap = document.createElement('div');
-  wrap.className = 'msg msg-coach';
+  wrap.className = 'wa-msg wa-msg-in wa-typing';
   wrap.id = 'typing-indicator';
-  wrap.innerHTML = `<div class="typing-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+  wrap.innerHTML = `
+    <div class="wa-typing-bubble">
+      <div class="wa-typing-dot"></div>
+      <div class="wa-typing-dot"></div>
+      <div class="wa-typing-dot"></div>
+    </div>`;
   body.appendChild(wrap);
   scrollToBottom();
 }
@@ -1240,9 +1864,10 @@ function hideTypingIndicator() {
 
 function showChatError(msg) {
   hideTypingIndicator();
-  const body = document.getElementById('chat-body');
+  const body = document.getElementById('wa-chat-body');
+  if (!body) return;
   const banner = document.createElement('div');
-  banner.className = 'chat-error-banner';
+  banner.className = 'wa-error-banner';
   banner.textContent = msg;
   body.appendChild(banner);
   scrollToBottom();
@@ -1251,16 +1876,15 @@ function showChatError(msg) {
 
 async function sendMessage() {
   if (state.sending) return;
-  const input = document.getElementById('chat-input');
+  const input = document.getElementById('wa-chat-input');
   const content = input.value.trim();
   if (!content) return;
 
   state.sending = true;
-  document.getElementById('send-btn').disabled = true;
   input.value = '';
   input.style.height = 'auto';
+  input.dispatchEvent(new Event('input'));
 
-  // Optimistic user message
   const userMsg = {
     user_id: state.user.id,
     role: 'user',
@@ -1270,7 +1894,6 @@ async function sendMessage() {
   state.messages.push(userMsg);
   appendMessageToView(userMsg);
 
-  // Persist user message
   supabase.from('messages').insert({
     user_id: state.user.id, role: 'user', content,
   }).then(({ error }) => {
@@ -1280,7 +1903,6 @@ async function sendMessage() {
   showTypingIndicator();
 
   try {
-    // Build messages payload for Anthropic — strip checkin tags from history
     const apiMessages = state.messages.slice(-30).map(m => ({
       role: m.role,
       content: m.role === 'assistant' ? stripCheckin(m.content) : m.content,
@@ -1292,11 +1914,19 @@ async function sendMessage() {
       body: JSON.stringify({
         systemPrompt: state.profile.system_prompt,
         messages: apiMessages,
+        userId: state.user.id,
       }),
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Coach is unreachable');
+    if (!res.ok) {
+      if (data.error === 'access_expired') {
+        state.profile.access_expires_at = null;
+        await route();
+        return;
+      }
+      throw new Error(data.error || 'Coach is unreachable');
+    }
 
     const fullText = data.text || '';
     const checkin = extractCheckin(fullText);
@@ -1306,13 +1936,12 @@ async function sendMessage() {
     const coachMsg = {
       user_id: state.user.id,
       role: 'assistant',
-      content: fullText,  // store full incl. checkin
+      content: fullText,
       created_at: new Date().toISOString(),
     };
     state.messages.push(coachMsg);
     appendMessageToView(coachMsg);
 
-    // Persist coach message + checkin in parallel
     supabase.from('messages').insert({
       user_id: state.user.id, role: 'assistant', content: fullText,
     }).then(({ error }) => {
@@ -1325,12 +1954,10 @@ async function sendMessage() {
     showChatError(err.message || 'Could not reach the coach. Try again.');
   } finally {
     state.sending = false;
-    document.getElementById('send-btn').disabled = !document.getElementById('chat-input').value.trim();
   }
 }
 
 async function sendInitialGreeting() {
-  // Send a synthetic "user" message asking the coach to greet, then store only the response
   state.sending = true;
   showTypingIndicator();
   try {
@@ -1341,8 +1968,8 @@ async function sendInitialGreeting() {
         systemPrompt: state.profile.system_prompt,
         messages: [{
           role: 'user',
-          content: 'I just finished onboarding. This is our first conversation. Greet me warmly in 2-3 sentences max. Reference one thing you know about me from my profile. End with one simple question to start us off. Do not include the CHECKIN tag this time.',
-        }],
+          content: 'I just finished onboarding. This is our first conversation. Greet me in 2 sentences max. Reference one specific thing from my profile. End with one short question. No em dashes. No bullet points. No motivational phrases. No CHECKIN tag.',        }],
+        userId: state.user.id,
       }),
     });
     const data = await res.json();
@@ -1355,58 +1982,829 @@ async function sendInitialGreeting() {
       created_at: new Date().toISOString(),
     };
     state.messages.push(coachMsg);
-    // Clear empty state
-    document.getElementById('chat-body').innerHTML = '';
+    document.getElementById('wa-chat-body').innerHTML = '';
     appendMessageToView(coachMsg);
-    supabase.from('messages').insert({
+    await supabase.from('messages').insert({
       user_id: state.user.id, role: 'assistant', content: data.text,
+    }).then(({ error }) => {
+      if (error) console.error('Persist greeting error:', error);
     });
   } catch (err) {
     hideTypingIndicator();
     console.error('Greeting error:', err);
-    // Don't block — leave the empty state showing
-    renderMessageList();
+    renderChatMessages();
   } finally {
     state.sending = false;
   }
 }
 
 // ============================================================
-// MENU
+// STATS TAB — Step 5
 // ============================================================
-function openMenu() {
+
+// Parse "9pm" / "21:00" / "9:30pm" → decimal hours (e.g. 21.5)
+function parseDinnerTime(str) {
+  if (!str) return null;
+  str = str.trim().toLowerCase();
+  const ampm = str.match(/(\d+)(?::(\d+))?\s*(am|pm)/);
+  if (ampm) {
+    let h = parseInt(ampm[1]);
+    const m = parseInt(ampm[2] || '0');
+    if (ampm[3] === 'pm' && h !== 12) h += 12;
+    if (ampm[3] === 'am' && h === 12) h = 0;
+    return h + m / 60;
+  }
+  const h24 = str.match(/(\d+):(\d+)/);
+  if (h24) return parseInt(h24[1]) + parseInt(h24[2]) / 60;
+  const bare = str.match(/^(\d+)$/);
+  if (bare) { const h = parseInt(bare[1]); return h < 12 ? h + 12 : h; }
+  return null;
+}
+
+function fmtHour(decimal) {
+  const h = Math.floor(decimal);
+  const m = Math.round((decimal - h) * 60);
+  const suffix = h >= 12 ? 'pm' : 'am';
+  const disp = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+  return m > 0 ? `${disp}:${String(m).padStart(2,'0')}${suffix}` : `${disp}${suffix}`;
+}
+
+// Parse sessions_per_week from stored workout_plan JSON
+function parseSessionsPerWeek(plan) {
+  if (!plan) return 3;
+  if (plan.sessions_per_week) return parseInt(plan.sessions_per_week);
+  if (plan.frequency) {
+    const m = plan.frequency.match(/(\d+)/);
+    if (m) return parseInt(m[1]);
+  }
+  if (plan.days && Array.isArray(plan.days)) return plan.days.length;
+  return 3;
+}
+
+// Which metric cards to show based on primary_goals
+function shouldShow(metric, goals) {
+  if (!goals || goals.length === 0) return true;
+  const g = Array.isArray(goals) ? goals.join(' ') : String(goals);
+  const gl = g.toLowerCase();
+  const map = {
+    weight:     () => true, // always show weight if they have a target
+    compliance: () => true, // always show compliance
+    dinner:     () => true, // always show dinner
+    energy:     () => true, // always show energy
+    pushups:    () => gl.includes('push') || gl.includes('strength') || gl.includes('power'),
+    walks:      () => gl.includes('stamin') || gl.includes('walk') || gl.includes('cardio') || gl.includes('run'),
+  };
+  return map[metric] ? map[metric]() : true;
+}
+
+// Destroy any existing Chart.js instances to avoid canvas reuse errors
+function destroyCharts() {
+  for (const id of Object.keys(state.statsCache.charts)) {
+    try { state.statsCache.charts[id].destroy(); } catch(e) {}
+  }
+  state.statsCache.charts = {};
+}
+
+function makeChart(id, config) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const chart = new Chart(canvas, config);
+  state.statsCache.charts[id] = chart;
+}
+
+async function renderStatsTab(container) {
+  destroyCharts();
+
+  const profile = state.profile || {};
+  const goals = profile.primary_goals || [];
+  const plan = profile.workout_plan;
+  const sessionsPerWeek = parseSessionsPerWeek(plan);
+  const targetWeight = profile.target_weight_kg;
+  const startWeight = profile.starting_weight_kg;
+
+  // Render shell immediately, populate async
+  container.innerHTML = `
+    <div class="wa-header">
+      <div class="wa-header-title-only">Stats</div>
+    </div>
+    <div class="stats-scroll" id="stats-scroll">
+      <div class="stats-insight" id="stats-insight">
+        <div class="stats-insight-icon">💡</div>
+        <div class="stats-insight-text stats-insight-loading" id="stats-insight-text">Analysing your check-ins…</div>
+      </div>
+      <div id="stats-body">
+        <div style="text-align:center; padding: 40px; color:#bbb; font-size:13px;">Loading your data…</div>
+      </div>
+    </div>`;
+
+  // Fetch last 30 days of checkins
+  const since = new Date();
+  since.setDate(since.getDate() - 30);
+  const { data: checkins, error } = await supabase
+    .from('checkins')
+    .select('*')
+    .eq('user_id', state.user.id)
+    .gte('checkin_date', since.toISOString().slice(0, 10))
+    .order('checkin_date', { ascending: true });
+
+  if (error) {
+    document.getElementById('stats-body').innerHTML =
+      `<div style="text-align:center;padding:40px;color:#ef4444;font-size:13px;">Could not load check-ins: ${escapeHtml(error.message)}</div>`;
+    document.getElementById('stats-insight-text').textContent = 'No data yet.';
+    return;
+  }
+
+  renderStatsDashboard(checkins || [], goals, sessionsPerWeek, targetWeight, startWeight, plan);
+  loadInsight(checkins || []);
+}
+
+function renderStatsDashboard(checkins, goals, sessionsPerWeek, targetWeight, startWeight, plan) {
+  const body = document.getElementById('stats-body');
+  if (!body) return;
+
+  const hasData = checkins.length > 0;
+
+  // ---- Compute metrics ----
+
+  // Weight: last known, delta from start
+  const weightPoints = checkins.filter(c => c.weight_kg).map(c => ({ date: c.checkin_date, v: c.weight_kg }));
+  const lastWeight = weightPoints.length ? weightPoints[weightPoints.length - 1].v : null;
+  const weightDelta = (lastWeight && startWeight) ? +(lastWeight - startWeight).toFixed(1) : null;
+
+  // Workout compliance: last 4 weeks
+  const fourWeeksAgo = new Date(); fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+  const recentCheckins = checkins.filter(c => new Date(c.checkin_date) >= fourWeeksAgo);
+  const workoutDone = recentCheckins.filter(c => c.workout_done).length;
+  const totalExpected = sessionsPerWeek * 4;
+  const compliance = totalExpected > 0 ? Math.round((workoutDone / totalExpected) * 100) : null;
+
+  // Dinner timing
+  const dinnerData = checkins.filter(c => c.dinner_time).map(c => parseDinnerTime(c.dinner_time)).filter(v => v !== null);
+  const avgDinner = dinnerData.length ? dinnerData.reduce((a, b) => a + b, 0) / dinnerData.length : null;
+  // Trend: compare first half vs second half
+  let dinnerTrend = null;
+  if (dinnerData.length >= 4) {
+    const half = Math.floor(dinnerData.length / 2);
+    const early = dinnerData.slice(0, half).reduce((a, b) => a + b, 0) / half;
+    const late = dinnerData.slice(half).reduce((a, b) => a + b, 0) / (dinnerData.length - half);
+    dinnerTrend = late - early; // negative = getting earlier (good)
+  }
+
+  // Push-ups: last known, progression data
+  const pushupPoints = checkins.filter(c => c.pushups_done).map(c => ({ date: c.checkin_date, v: c.pushups_done }));
+  const lastPushups = pushupPoints.length ? pushupPoints[pushupPoints.length - 1].v : null;
+
+  // Walk streak
+  let walkStreak = 0;
+  const sortedDesc = [...checkins].sort((a, b) => b.checkin_date.localeCompare(a.checkin_date));
+  for (const c of sortedDesc) {
+    if (c.walk_done === true) walkStreak++;
+    else if (c.walk_done === false) break;
+  }
+
+  // Energy average
+  const energyData = checkins.filter(c => c.energy_level).map(c => c.energy_level);
+  const avgEnergy = energyData.length ? +(energyData.reduce((a, b) => a + b, 0) / energyData.length).toFixed(1) : null;
+
+  // ---- Build HTML ----
+  let html = '';
+
+  // Row 1: Weight + Compliance
+  html += `<div class="stats-section-label">Overview</div>`;
+  html += `<div class="stats-cards-row">`;
+
+  // Weight card
+  if (shouldShow('weight', goals) && targetWeight) {
+    if (lastWeight) {
+      const toGo = +(lastWeight - targetWeight).toFixed(1);
+      const deltaClass = weightDelta < 0 ? 'stats-card-trend-down' : weightDelta > 0 ? 'stats-card-trend-up' : '';
+      const deltaSign = weightDelta > 0 ? '+' : '';
+      html += `<div class="stats-card">
+        <div class="stats-card-label">Weight</div>
+        <div class="stats-card-value">${lastWeight}<span class="stats-card-unit">kg</span></div>
+        <div class="stats-card-sub ${deltaClass}">${deltaSign}${weightDelta}kg since start</div>
+        <div class="stats-card-sub">${toGo > 0 ? toGo + 'kg to go' : 'Target reached'}</div>
+      </div>`;
+    } else {
+      html += `<div class="stats-card">
+        <div class="stats-card-label">Weight</div>
+        <div class="stats-card-value" style="font-size:18px">${startWeight}<span class="stats-card-unit">kg</span></div>
+        <div class="stats-card-empty">No weigh-ins yet</div>
+      </div>`;
+    }
+  }
+
+  // Energy card
+  if (shouldShow('energy', goals)) {
+    if (avgEnergy) {
+      html += `<div class="stats-card">
+        <div class="stats-card-label">Energy avg</div>
+        <div class="stats-card-value">${avgEnergy}<span class="stats-card-unit">/ 10</span></div>
+        <div class="stats-card-sub">${energyData.length} check-ins</div>
+      </div>`;
+    } else {
+      html += `<div class="stats-card">
+        <div class="stats-card-label">Energy avg</div>
+        <div class="stats-card-value" style="font-size:22px">—</div>
+        <div class="stats-card-empty">No data yet</div>
+      </div>`;
+    }
+  }
+
+  html += `</div>`; // end row 1
+
+  // Workout compliance bar
+  if (shouldShow('compliance', goals)) {
+    html += `<div class="stats-chart-card">
+      <div class="stats-chart-title">Workout compliance · last 4 weeks</div>`;
+    if (compliance !== null) {
+      html += `<div class="stats-card-value" style="font-size:32px;margin-bottom:10px;">${compliance}<span class="stats-card-unit">%</span></div>
+        <div class="stats-compliance-bar-wrap">
+          <div class="stats-compliance-bar-bg">
+            <div class="stats-compliance-bar-fill" style="width:${compliance}%"></div>
+          </div>
+          <div class="stats-compliance-label">${workoutDone} of ${totalExpected} sessions · ${sessionsPerWeek}x per week plan</div>
+        </div>`;
+    } else {
+      html += `<div class="stats-chart-empty">No workout check-ins yet</div>`;
+    }
+    html += `</div>`;
+  }
+
+  // Row 2: Dinner + Walks
+  html += `<div class="stats-cards-row">`;
+
+  if (shouldShow('dinner', goals)) {
+    if (avgDinner) {
+      const trendLabel = dinnerTrend !== null
+        ? (dinnerTrend < -0.1 ? '▲ Getting earlier' : dinnerTrend > 0.1 ? '▼ Getting later' : '→ Steady')
+        : '';
+      const trendClass = dinnerTrend !== null
+        ? (dinnerTrend < -0.1 ? 'stats-card-trend-up' : dinnerTrend > 0.1 ? 'stats-card-trend-down' : '')
+        : '';
+      html += `<div class="stats-card">
+        <div class="stats-card-label">Avg dinner</div>
+        <div class="stats-card-value" style="font-size:22px">${fmtHour(avgDinner)}</div>
+        <div class="stats-card-sub ${trendClass}">${trendLabel}</div>
+      </div>`;
+    } else {
+      html += `<div class="stats-card">
+        <div class="stats-card-label">Avg dinner</div>
+        <div class="stats-card-value" style="font-size:22px">—</div>
+        <div class="stats-card-empty">No data yet</div>
+      </div>`;
+    }
+  }
+
+  if (shouldShow('walks', goals)) {
+    html += `<div class="stats-card">
+      <div class="stats-card-label">Walk streak</div>
+      <div class="stats-card-value">${walkStreak}<span class="stats-card-unit">days</span></div>
+      <div class="stats-card-sub">${walkStreak === 0 ? 'No streak yet' : walkStreak === 1 ? 'Day 1 — keep going' : `${walkStreak} days in a row`}</div>
+    </div>`;
+  }
+
+  html += `</div>`; // end row 2
+
+  // Push-ups card (conditional on goal)
+  if (shouldShow('pushups', goals)) {
+    if (lastPushups) {
+      html += `<div class="stats-card" style="margin-bottom:10px;">
+        <div class="stats-card-label">Push-ups last reported</div>
+        <div class="stats-card-value">${lastPushups}</div>
+        <div class="stats-card-sub">${pushupPoints.length} reports logged</div>
+      </div>`;
+    } else {
+      html += `<div class="stats-card" style="margin-bottom:10px;">
+        <div class="stats-card-label">Push-ups</div>
+        <div class="stats-card-value" style="font-size:22px">—</div>
+        <div class="stats-card-empty">No data yet</div>
+      </div>`;
+    }
+  }
+
+  // Weight chart
+  if (weightPoints.length >= 2) {
+    html += `<div class="stats-chart-card">
+      <div class="stats-chart-title">Weight trend · last 30 days</div>
+      <div class="stats-chart-wrap"><canvas id="chart-weight"></canvas></div>
+    </div>`;
+  }
+
+  // Push-up chart (conditional)
+  if (shouldShow('pushups', goals) && pushupPoints.length >= 2) {
+    html += `<div class="stats-chart-card">
+      <div class="stats-chart-title">Push-up progression</div>
+      <div class="stats-chart-wrap"><canvas id="chart-pushups"></canvas></div>
+    </div>`;
+  }
+
+  if (!hasData) {
+    html = `<div style="text-align:center;padding:48px 24px;">
+      <div style="font-size:36px;margin-bottom:16px;">📊</div>
+      <div style="font-size:17px;font-weight:600;color:#1a1915;margin-bottom:8px;">No check-ins yet</div>
+      <div style="font-size:14px;color:#aaa;line-height:1.55;max-width:260px;margin:0 auto;">Chat with Bennet and your stats will appear here automatically after each session.</div>
+    </div>`;
+  }
+
+  body.innerHTML = html;
+
+  // Draw charts after DOM update
+  if (weightPoints.length >= 2) {
+    const labels = weightPoints.map(p => p.date.slice(5)); // MM-DD
+    const data = weightPoints.map(p => p.v);
+    const targetLine = targetWeight ? data.map(() => targetWeight) : null;
+    makeChart('chart-weight', {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Weight',
+            data,
+            borderColor: '#e8650a',
+            backgroundColor: 'rgba(232,101,10,0.08)',
+            borderWidth: 2,
+            pointRadius: 3,
+            pointBackgroundColor: '#e8650a',
+            tension: 0.3,
+            fill: true,
+          },
+          ...(targetLine ? [{
+            label: 'Target',
+            data: targetLine,
+            borderColor: '#10b981',
+            borderWidth: 1.5,
+            borderDash: [4, 4],
+            pointRadius: 0,
+            fill: false,
+          }] : []),
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { font: { size: 10 }, color: '#aaa', maxRotation: 0 }, grid: { display: false } },
+          y: { ticks: { font: { size: 10 }, color: '#aaa' }, grid: { color: '#f0f0f0' } },
+        },
+      },
+    });
+  }
+
+  if (shouldShow('pushups', goals) && pushupPoints.length >= 2) {
+    makeChart('chart-pushups', {
+      type: 'line',
+      data: {
+        labels: pushupPoints.map(p => p.date.slice(5)),
+        datasets: [{
+          label: 'Push-ups',
+          data: pushupPoints.map(p => p.v),
+          borderColor: '#e8650a',
+          backgroundColor: 'rgba(232,101,10,0.08)',
+          borderWidth: 2,
+          pointRadius: 3,
+          pointBackgroundColor: '#e8650a',
+          tension: 0.2,
+          fill: true,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { font: { size: 10 }, color: '#aaa', maxRotation: 0 }, grid: { display: false } },
+          y: { ticks: { font: { size: 10 }, color: '#aaa' }, grid: { color: '#f0f0f0' }, beginAtZero: true },
+        },
+      },
+    });
+  }
+}
+
+async function loadInsight(checkins) {
+  const insightEl = document.getElementById('stats-insight-text');
+  if (!insightEl) return;
+
+  // Use cached insight if generated today
+  const today = new Date().toISOString().slice(0, 10);
+  if (state.statsCache.insight && state.statsCache.insightDate === today) {
+    insightEl.textContent = state.statsCache.insight;
+    insightEl.classList.remove('stats-insight-loading');
+    return;
+  }
+
+  if (checkins.length < 3) {
+    insightEl.textContent = checkins.length === 0
+      ? 'Chat with Bennet and patterns will start appearing here.'
+      : 'A few more check-ins and a pattern insight will appear here.';
+    insightEl.classList.remove('stats-insight-loading');
+    return;
+  }
+
+  try {
+    const res = await fetch(INSIGHT_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ checkins: checkins.slice(-30) }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Insight failed');
+    const text = data.insight || 'No insight generated.';
+    state.statsCache.insight = text;
+    state.statsCache.insightDate = today;
+    if (insightEl) {
+      insightEl.textContent = text;
+      insightEl.classList.remove('stats-insight-loading');
+    }
+  } catch (err) {
+    console.warn('Insight error:', err.message);
+    if (insightEl) {
+      insightEl.textContent = 'Keep logging — patterns will appear here.';
+      insightEl.classList.remove('stats-insight-loading');
+    }
+  }
+}
+
+// ============================================================
+// PLAN TAB
+// ============================================================
+function renderPlanTab(container) {
+  const plan = state.profile?.workout_plan;
+
+  if (!plan || !plan.days) {
+    container.innerHTML = `
+      <div class="wa-header">
+        <div class="wa-header-title-only">Plan</div>
+      </div>
+      <div class="wa-tab-content">
+        <div class="plan-content">
+          <div class="plan-intro">Your personalised plan is being generated. Check back after your first chat.</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const daysHtml = plan.days.map(day => `
+    <div class="plan-day">
+      <div class="plan-day-header">
+        <div class="plan-day-label">${day.label}</div>
+        <div class="plan-day-title">${day.title}</div>
+        <div class="plan-day-sub">${day.subtitle}</div>
+      </div>
+      ${day.exercises.map(ex => `
+        <div class="plan-exercise">
+          <div class="plan-exercise-name">${ex.name}</div>
+          <div class="plan-exercise-reps">${ex.sets} × ${ex.reps}</div>
+        </div>`).join('')}
+    </div>`).join('');
+
+  const dailyHtml = (plan.daily || []).map(item => `
+    <div class="plan-daily-item">${item}</div>`).join('');
+
+  container.innerHTML = `
+    <div class="wa-header">
+      <div class="wa-header-title-only">Plan</div>
+    </div>
+    <div class="wa-tab-content">
+      <div class="plan-content">
+        <div class="plan-intro">${plan.frequency}. ${plan.duration}.</div>
+        ${daysHtml}
+        <div class="plan-daily">
+          <div class="plan-daily-title">Daily, every day</div>
+          ${dailyHtml}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ============================================================
+// SETTINGS TAB
+// ============================================================
+function renderSettingsTab(container) {
+  const p = state.profile || {};
+  const name = p.name || state.user.email.split('@')[0];
+  const initials = getInitials(name);
+  const start = p.starting_weight_kg ? `${p.starting_weight_kg} kg` : '—';
+  const target = p.target_weight_kg ? `${p.target_weight_kg} kg` : '—';
+  const occupation = p.occupation || '—';
+  const diet = p.diet_type || '—';
+  const notifsEnabled = p.notifications_enabled || false;
+
+  container.innerHTML = `
+    <div class="wa-header">
+      <div class="wa-header-title-only">Settings</div>
+    </div>
+    <div class="wa-tab-content">
+      <div class="settings-profile">
+        <div class="settings-avatar">${escapeHtml(initials)}</div>
+        <div class="settings-profile-info">
+          <div class="settings-name">${escapeHtml(name)}</div>
+          <div class="settings-email">${escapeHtml(state.user.email)}</div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-label">Your profile</div>
+        <div class="settings-stats-grid">
+          <div class="settings-stat">
+            <div class="settings-stat-label">Starting weight</div>
+            <div class="settings-stat-value">${start}</div>
+          </div>
+          <div class="settings-stat">
+            <div class="settings-stat-label">Target weight</div>
+            <div class="settings-stat-value">${target}</div>
+          </div>
+          <div class="settings-stat">
+            <div class="settings-stat-label">Occupation</div>
+            <div class="settings-stat-value" style="font-size: 13px; line-height: 1.3;">${escapeHtml(occupation.length > 30 ? occupation.slice(0,30)+'…' : occupation)}</div>
+          </div>
+          <div class="settings-stat">
+            <div class="settings-stat-label">Diet</div>
+            <div class="settings-stat-value">${escapeHtml(diet)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-label">Notifications</div>
+        <div class="settings-row-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <div class="settings-row-toggle-text">
+            Daily check-in reminder
+            <div class="settings-row-toggle-sub">Bennet reminds you at 10pm if you haven't checked in. On iPhone, add to home screen first.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="notif-toggle" ${notifsEnabled ? 'checked' : ''} />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-label">Account</div>
+        <button class="settings-row" id="settings-regenerate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          <div class="settings-row-text">Regenerate coach</div>
+          <div class="settings-row-arrow">›</div>
+        </button>
+        <button class="settings-row" id="settings-regenerate-plan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><rect x="9" y="11" width="12" height="10" rx="2"/><path d="M12 15h6m-6 3h4"/></svg>
+          <div class="settings-row-text">Regenerate plan</div>
+          <div class="settings-row-arrow">›</div>
+        </button>
+        <button class="settings-row" id="settings-redo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <div class="settings-row-text">Redo onboarding</div>
+          <div class="settings-row-arrow">›</div>
+        </button>
+        <button class="settings-row settings-row-danger" id="settings-logout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <div class="settings-row-text">Log out</div>
+          <div class="settings-row-arrow">›</div>
+        </button>
+      </div>
+
+      <div style="padding: 24px 16px; text-align: center;">
+        <div style="color: var(--wa-text-secondary); font-size: 12px; letter-spacing: 0.05em;">OPERATION 75 · v3</div>
+      </div>
+    </div>`;
+
+  document.getElementById('settings-regenerate').onclick = handleRegenerate;
+  document.getElementById('settings-regenerate-plan').onclick = handleRegeneratePlan;
+  document.getElementById('settings-redo').onclick = handleRedoOnboarding;
+  document.getElementById('settings-logout').onclick = handleLogout;
+  document.getElementById('notif-toggle').onchange = handleNotifToggle;
+}
+
+async function handleRegenerate() {
+  const answers = state.profile.onboarding_answers;
+  if (!answers) {
+    showConfirm({
+      title: 'Cannot regenerate',
+      text: 'Your original onboarding answers were not saved. Use "Redo onboarding" to start fresh.',
+      primaryLabel: 'OK',
+      onPrimary: () => {},
+    });
+    return;
+  }
+  showConfirm({
+    title: 'Regenerate coach?',
+    text: 'This rebuilds your coach using your saved onboarding answers and the latest coaching style. Existing chat history stays.',
+    primaryLabel: 'Regenerate',
+    onPrimary: async () => {
+      const name = state.profile?.name || state.user.email.split('@')[0];
+      try {
+        const res = await fetch(PROMPT_FN, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, answers }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Regeneration failed');
+        await supabase.from('profiles').update({
+          system_prompt: data.systemPrompt,
+          updated_at: new Date().toISOString(),
+        }).eq('id', state.user.id);
+        await route();
+      } catch (err) {
+        showConfirm({
+          title: 'Regeneration failed',
+          text: err.message,
+          primaryLabel: 'OK',
+          onPrimary: () => {},
+        });
+      }
+    },
+    danger: false,
+  });
+}
+
+async function handleRegeneratePlan() {
+  const answers = state.profile.onboarding_answers;
+  if (!answers) {
+    showConfirm({
+      title: 'Cannot regenerate',
+      text: 'Your original onboarding answers were not saved. Use "Redo onboarding" to start fresh.',
+      primaryLabel: 'OK',
+      onPrimary: () => {},
+    });
+    return;
+  }
+  showConfirm({
+    title: 'Regenerate plan?',
+    text: 'This rebuilds your workout plan from your saved onboarding answers. Your current plan will be replaced.',
+    primaryLabel: 'Regenerate',
+    onPrimary: async () => {
+      const name = state.profile?.name || state.user.email.split('@')[0];
+      try {
+        const res = await fetch(PLAN_FN, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, answers }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Plan regeneration failed');
+        await supabase.from('profiles').update({
+          workout_plan: data.plan,
+          updated_at: new Date().toISOString(),
+        }).eq('id', state.user.id);
+        state.profile.workout_plan = data.plan;
+        showConfirm({
+          title: 'Plan updated',
+          text: 'Your workout plan has been regenerated. Head to the Plan tab to see it.',
+          primaryLabel: 'Done',
+          onPrimary: () => {},
+        });
+      } catch (err) {
+        showConfirm({
+          title: 'Regeneration failed',
+          text: err.message,
+          primaryLabel: 'OK',
+          onPrimary: () => {},
+        });
+      }
+    },
+    danger: false,
+  });
+}
+
+function handleRedoOnboarding() {
+  showConfirm({
+    title: 'Redo onboarding?',
+    text: 'This resets your coaching profile and walks you through all 11 questions again. Your chat history stays intact.',
+    primaryLabel: 'Redo',
+    onPrimary: async () => {
+      await supabase.from('profiles').update({ onboarded: false }).eq('id', state.user.id);
+      onbState.step = 0; onbState.answers = {};
+      await route();
+    },
+    danger: true,
+  });
+}
+
+function handleLogout() {
+  showConfirm({
+    title: 'Log out?',
+    text: 'You can sign back in anytime with your email and password.',
+    primaryLabel: 'Log out',
+    onPrimary: async () => {
+      await supabase.auth.signOut();
+      state.authMode = 'login';
+      state.messages = [];
+      state.activeTab = 'chats';
+      await route();
+    },
+    danger: true,
+  });
+}
+
+function showConfirm({ title, text, primaryLabel, onPrimary, danger }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
   overlay.innerHTML = `
-    <div class="modal-sheet">
-      <div class="modal-handle"></div>
-      <div class="modal-title">Settings</div>
-      <div class="modal-sub">Logged in as ${state.user.email}</div>
-      <button class="modal-row" id="menu-redo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-        Redo onboarding
-      </button>
-      <button class="modal-row modal-row-danger" id="menu-logout">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        Log out
-      </button>
+    <div class="modal-card">
+      <div class="modal-card-title">${escapeHtml(title)}</div>
+      <div class="modal-card-text">${escapeHtml(text)}</div>
+      <div class="modal-card-actions">
+        <button class="modal-card-btn" id="modal-cancel">Cancel</button>
+        <button class="modal-card-btn ${danger ? 'danger' : 'primary'}" id="modal-primary">${escapeHtml(primaryLabel)}</button>
+      </div>
     </div>`;
   document.body.appendChild(overlay);
   overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
-  document.getElementById('menu-redo').onclick = async () => {
-    if (!confirm('Reset your coaching profile and redo onboarding?')) return;
-    await supabase.from('profiles').update({ onboarded: false }).eq('id', state.user.id);
-    onbState.step = 0; onbState.answers = {};
+  document.getElementById('modal-cancel').onclick = () => overlay.remove();
+  document.getElementById('modal-primary').onclick = async () => {
     overlay.remove();
-    await route();
+    await onPrimary();
   };
-  document.getElementById('menu-logout').onclick = async () => {
-    overlay.remove();
-    await supabase.auth.signOut();
-    state.authMode = 'login';
-    state.messages = [];
-    await route();
-  };
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+async function handleNotifToggle(e) {
+  const enabled = e.target.checked;
+
+  if (enabled) {
+    // Check browser support
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      e.target.checked = false;
+      showConfirm({
+        title: 'Not supported',
+        text: 'Push notifications are not supported in this browser. On iPhone, add the app to your home screen first.',
+        primaryLabel: 'OK',
+        onPrimary: () => {},
+      });
+      return;
+    }
+
+    // Request permission
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+      e.target.checked = false;
+      showConfirm({
+        title: 'Permission denied',
+        text: 'Enable notifications in your browser settings, then try again.',
+        primaryLabel: 'OK',
+        onPrimary: () => {},
+      });
+      return;
+    }
+
+    try {
+      // Register service worker
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      await navigator.serviceWorker.ready;
+
+      // Subscribe to push
+      const subscription = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+
+      // Save subscription to Supabase via function
+      const res = await fetch(SAVE_SUB_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: state.user.id,
+          subscription: subscription.toJSON(),
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to save subscription');
+
+      // Update profile in Supabase
+      await supabase.from('profiles')
+        .update({ notifications_enabled: true })
+        .eq('id', state.user.id);
+
+      state.profile.notifications_enabled = true;
+
+    } catch (err) {
+      console.error('Notification setup error:', err);
+      e.target.checked = false;
+      showConfirm({
+        title: 'Something went wrong',
+        text: 'Could not enable notifications. Try again.',
+        primaryLabel: 'OK',
+        onPrimary: () => {},
+      });
+    }
+
+  } else {
+    // Turning off — just update the flag in Supabase
+    await supabase.from('profiles')
+      .update({ notifications_enabled: false })
+      .eq('id', state.user.id);
+    state.profile.notifications_enabled = false;
+  }
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
 }
 
 // ============================================================
